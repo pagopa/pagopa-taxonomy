@@ -7,8 +7,7 @@ import java.util.*
 
 
 @Repository
-interface TaxonomyRepository : JpaRepository<TaxonomyInfo, Long> {
+interface TaxonomyRepository : JpaRepository<TaxonomyInfo, String> {
 
     fun findByCollectionData(code: String): Optional<TaxonomyInfo>
-
 }
