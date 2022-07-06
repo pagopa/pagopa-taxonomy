@@ -31,6 +31,7 @@ dependencies {
     implementation("org.springdoc:springdoc-openapi-kotlin:1.6.9")
     implementation("org.jetbrains.kotlin:kotlin-reflect")
     implementation("org.jetbrains.kotlin:kotlin-stdlib-jdk8")
+    implementation("com.oracle.database.jdbc:ojdbc8:21.5.0.0")
     implementation("org.apache.poi:poi:5.2.2")
     implementation("org.apache.poi:poi-ooxml:5.2.2")
     compileOnly("org.projectlombok:lombok")
