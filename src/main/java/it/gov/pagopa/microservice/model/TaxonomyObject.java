@@ -1,12 +1,11 @@
 package it.gov.pagopa.microservice.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
-import org.mapstruct.Mapping;
+import lombok.*;
 
-@Data
+
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaxonomyObject extends TaxonomyGeneric{

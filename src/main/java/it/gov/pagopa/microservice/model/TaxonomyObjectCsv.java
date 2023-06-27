@@ -1,15 +1,11 @@
 package it.gov.pagopa.microservice.model;
 
-import com.fasterxml.jackson.annotation.JsonProperty;
-import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
-import com.opencsv.bean.processor.PreAssignmentProcessor;
-import it.gov.pagopa.microservice.util.TestClass;
-import lombok.AllArgsConstructor;
-import lombok.Data;
-import lombok.NoArgsConstructor;
 
-@Data
+import lombok.*;
+
+@Getter
+@Setter
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaxonomyObjectCsv {
