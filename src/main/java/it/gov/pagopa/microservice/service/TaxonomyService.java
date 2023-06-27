@@ -31,13 +31,15 @@ public class TaxonomyService {
   @Value("${taxonomy.csvLink}")
   String stringUrl;
 
+  @Value("${taxonomy.jsonName}")
+  String jsonName;
+
   @Autowired
   ObjectMapper objectMapper;
 
   @Autowired
   TaxonomyMapper taxonomyMapper;
 
-  //@Autowired
   private static final Logger logger = Logger.getLogger(TaxonomyService.class);
 
   public void updateTaxonomy() {
@@ -50,7 +52,7 @@ public class TaxonomyService {
               .parse();
       List<TaxonomyObject> objectList = taxonomyMapper.taxonomyCsvListToTaxonomyObjectList(objects);
       byte[] jsonBytes = objectMapper.writeValueAsBytes(objectList);
-      FileOutputStream outputStream = new FileOutputStream("taxonomy.json");
+      FileOutputStream outputStream = new FileOutputStream(jsonName);
       outputStream.write(jsonBytes);
       outputStream.close();
       logger.info("Aggiornata tassonomia con successo.");
@@ -77,7 +79,7 @@ public class TaxonomyService {
   public List<? extends TaxonomyGeneric> getTaxonomyList(String version) {
     List<? extends TaxonomyGeneric> taxonomyGeneric;
     try {
-      String taxonomy = new String(Files.readAllBytes(Paths.get("taxonomy.json")), StandardCharsets.UTF_8);
+      String taxonomy = new String(Files.readAllBytes(Paths.get(jsonName)), StandardCharsets.UTF_8);
       if(version.equalsIgnoreCase("standard")) {
         taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectStandard>>(){});
       }

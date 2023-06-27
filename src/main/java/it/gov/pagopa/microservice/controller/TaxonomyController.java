@@ -24,7 +24,6 @@ public class TaxonomyController {
   String[] versions;
   @Autowired
   TaxonomyService taxonomyService;
-  //@Autowired
   private static final Logger logger = Logger.getLogger(TaxonomyController.class);
   @GetMapping("/generate")
   public GenericMessage updateTaxonomy() {
