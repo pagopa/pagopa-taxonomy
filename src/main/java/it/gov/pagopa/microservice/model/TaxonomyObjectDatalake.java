@@ -2,12 +2,13 @@ package it.gov.pagopa.microservice.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Setter
 @Getter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class TaxonomyObjectDatalake extends TaxonomyObjectStandard{
   @JsonProperty(value="COMBINAZIONE TOPIC E SUBTOPIC")
   private String combinazioneTopicSubtopic;

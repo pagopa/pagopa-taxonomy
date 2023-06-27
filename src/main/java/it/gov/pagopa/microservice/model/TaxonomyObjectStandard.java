@@ -2,12 +2,13 @@ package it.gov.pagopa.microservice.model;
 
 import com.fasterxml.jackson.annotation.JsonProperty;
 import lombok.*;
+import lombok.experimental.SuperBuilder;
 
 @Getter
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-@Builder
+@SuperBuilder
 public class TaxonomyObjectStandard {
   @JsonProperty(value="CODICE TIPO ENTE CREDITORE")
   private String codiceTipoEnteCreditore;

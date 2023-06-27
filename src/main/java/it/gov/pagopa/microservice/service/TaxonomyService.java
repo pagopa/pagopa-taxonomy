@@ -81,7 +81,9 @@ public class TaxonomyService {
     List<? extends TaxonomyObjectStandard> taxonomyGeneric;
     try {
       String taxonomy = new String(Files.readAllBytes(Paths.get(jsonName)), StandardCharsets.UTF_8);
-      if (version.equalsIgnoreCase("datalake")) {
+      if (version.equalsIgnoreCase("standard")) {
+        taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectStandard>>() {});
+      } else if (version.equalsIgnoreCase("datalake")) {
         taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectDatalake>>() {});
       } else {
         logger.error("The version does not exist.");
