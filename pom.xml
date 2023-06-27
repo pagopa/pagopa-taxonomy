@@ -11,9 +11,9 @@
   </parent>
 
   <groupId>it.gov.pagopa</groupId>
-  <artifactId>microservice</artifactId> <!--TODO: set your artifactId-->
+  <artifactId>microservice</artifactId>
   <version>0.0.0</version>
-  <description>Your description</description> <!--TODO: set your description-->
+  <description>Your description</description>
 
   <properties>
     <java.version>11</java.version>
@@ -30,7 +30,7 @@
       <artifactId>spring-boot-starter-validation</artifactId>
     </dependency>
 
-    <!-- Spring utils-->
+    <!-- Spring utils -->
     <dependency>
       <groupId>org.springframework.boot</groupId>
       <artifactId>spring-boot-devtools</artifactId>
@@ -111,6 +111,7 @@
       <artifactId>junit</artifactId>
       <scope>test</scope>
     </dependency>
+
     <dependency>
       <groupId>com.opencsv</groupId>
       <artifactId>opencsv</artifactId>
@@ -124,7 +125,6 @@
         <groupId>org.springframework.boot</groupId>
         <artifactId>spring-boot-maven-plugin</artifactId>
       </plugin>
-
 
       <plugin>
         <groupId>org.apache.maven.plugins</groupId>
@@ -156,47 +156,49 @@
       </plugin>
     </plugins>
   </build>
+
   <profiles>
     <profile>
-    <id>Sonar</id>
-      <build><plugins>
-        <plugin>
-          <groupId>org.sonarsource.scanner.maven</groupId>
-          <artifactId>sonar-maven-plugin</artifactId>
-          <version>3.3.0.603</version>
-          <executions>
-            <execution>
-              <phase>verify</phase>
-              <goals>
-                <goal>sonar</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-        <plugin>
-          <groupId>org.jacoco</groupId>
-          <artifactId>jacoco-maven-plugin</artifactId>
-          <version>0.8.7</version>
-          <configuration>
-            <excludes>
-            </excludes>
-          </configuration>
-          <executions>
-            <execution>
-              <goals>
-                <goal>prepare-agent</goal>
-              </goals>
-            </execution>
-            <execution>
-              <id>report</id>
-              <phase>test</phase>
-              <goals>
-                <goal>report</goal>
-              </goals>
-            </execution>
-          </executions>
-        </plugin>
-      </plugins>
+      <id>Sonar</id>
+      <build>
+        <plugins>
+          <plugin>
+            <groupId>org.sonarsource.scanner.maven</groupId>
+            <artifactId>sonar-maven-plugin</artifactId>
+            <version>3.3.0.603</version>
+            <executions>
+              <execution>
+                <phase>verify</phase>
+                <goals>
+                  <goal>sonar</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+          <plugin>
+            <groupId>org.jacoco</groupId>
+            <artifactId>jacoco-maven-plugin</artifactId>
+            <version>0.8.7</version>
+            <configuration>
+              <excludes>
+              </excludes>
+            </configuration>
+            <executions>
+              <execution>
+                <goals>
+                  <goal>prepare-agent</goal>
+                </goals>
+              </execution>
+              <execution>
+                <id>report</id>
+                <phase>test</phase>
+                <goals>
+                  <goal>report</goal>
+                </goals>
+              </execution>
+            </executions>
+          </plugin>
+        </plugins>
       </build>
     </profile>
   </profiles>

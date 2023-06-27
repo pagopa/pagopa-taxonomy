@@ -26,8 +26,8 @@ import java.nio.file.Paths;
 import java.util.List;
 
 @Service
-
 public class TaxonomyService {
+
   @Value("${taxonomy.csvLink}")
   String stringUrl;
 
@@ -55,49 +55,45 @@ public class TaxonomyService {
       FileOutputStream outputStream = new FileOutputStream(jsonName);
       outputStream.write(jsonBytes);
       outputStream.close();
-      logger.info("Aggiornata tassonomia con successo.");
+      logger.info("Taxonomy updated successfully.");
     } catch (ConnectException connException) {
-      logger.error("Fallito tentativo di connessione.");
+      logger.error("Failed to establish a connection.");
       throw new AppException(AppError.CONNECTION_REFUSED);
     } catch (FileNotFoundException fnfException) {
-      logger.error("Fallito tentativo di recupero del file.");
+      logger.error("Failed to retrieve the file.");
       throw new AppException(AppError.FILE_DOES_NOT_EXIST);
     } catch (MalformedURLException muException) {
+      logger.error("Malformed URL exception.");
       throw new AppException(AppError.MALFORMED_URL);
     } catch (IOException ioException) {
+      logger.error("Error occurred while reading/writing.");
       throw new AppException(AppError.ERROR_READING_WRITING);
     } catch (IllegalStateException isException) {
+      logger.error("CSV parsing error.");
       throw new AppException(AppError.CSV_PARSING_ERROR);
-    }
-    catch(Exception e) {
-      logger.error("Errore nell'aggiornamento.");
-      //e.printStackTrace();
+    } catch (Exception e) {
+      logger.error("Error occurred during update.");
       throw new AppException(AppError.GENERATE_FILE);
     }
   }
 
-  public List<? extends TaxonomyGeneric> getTaxonomyList(String version) {
-    List<? extends TaxonomyGeneric> taxonomyGeneric;
+  public List<? extends TaxonomyObjectStandard> getTaxonomyList(String version) {
+    List<? extends TaxonomyObjectStandard> taxonomyGeneric;
     try {
       String taxonomy = new String(Files.readAllBytes(Paths.get(jsonName)), StandardCharsets.UTF_8);
-      if(version.equalsIgnoreCase("standard")) {
-        taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectStandard>>(){});
-      }
-      else if(version.equalsIgnoreCase("datalake")){
-        taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectDatalake>>(){});
+      if (version.equalsIgnoreCase("datalake")) {
+        taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectDatalake>>() {});
       } else {
-        logger.error("La versione non esiste.");
+        logger.error("The version does not exist.");
         throw new AppException(AppError.VERSION_DOES_NOT_EXIST);
       }
-      logger.info("Recuperata la versione della tassonomia con successo.");
+      logger.info("Successfully retrieved the taxonomy version.");
       return taxonomyGeneric;
-    } catch(NoSuchFileException nsf) {
-      //nsf.printStackTrace();
-      logger.error("Fallito tentativo di recupero del file.");
+    } catch (NoSuchFileException nsf) {
+      logger.error("Failed to retrieve the file.");
       throw new AppException(AppError.FILE_DOES_NOT_EXIST);
-    } catch(Exception exc) {
-      //exc.printStackTrace();
-      logger.error("Errore interno del server.");
+    } catch (Exception exc) {
+      logger.error("Internal server error.");
       throw new AppException(AppError.INTERNAL_SERVER_ERROR);
     }
   }

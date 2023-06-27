@@ -8,7 +8,7 @@ import lombok.*;
 @Setter
 @AllArgsConstructor
 @NoArgsConstructor
-public class TaxonomyObject extends TaxonomyGeneric{
+public class TaxonomyObject {
   @JsonProperty(value="CODICE TIPO ENTE CREDITORE")
   private String codiceTipoEnteCreditore;
   @JsonProperty(value="TIPO ENTE CREDITORE")
