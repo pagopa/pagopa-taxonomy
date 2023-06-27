@@ -1,5 +1,6 @@
 package it.gov.pagopa.microservice.model;
 
+import com.opencsv.bean.CsvBindByName;
 import com.opencsv.bean.CsvBindByPosition;
 
 import lombok.*;
@@ -9,34 +10,34 @@ import lombok.*;
 @AllArgsConstructor
 @NoArgsConstructor
 public class TaxonomyObjectCsv {
-  @CsvBindByPosition(position = 0)
+  @CsvBindByName(column = "CODICE TIPO ENTE CREDITORE")
   private String codiceTipoEnteCreditore;
-  @CsvBindByPosition(position = 1)
+  @CsvBindByName(column = "TIPO ENTE CREDITORE")
   private String tipoEnteCreditore;
-  @CsvBindByPosition(position = 2)
+  @CsvBindByName(column = "PROGRESSIVO MACRO AREA PER ENTE CREDITORE")
   private String progressivoMacroAreaPerEnteCreditore;
-  @CsvBindByPosition(position = 3)
+  @CsvBindByName(column = "NOME MACRO AREA")
   private String nomeMacroArea;
-  @CsvBindByPosition(position = 4)
+  @CsvBindByName(column = "DESCRIZIONE MACRO AREA")
   private String descrizioneMacroArea;
-  @CsvBindByPosition(position = 5)
+  @CsvBindByName(column = "CODICE TIPOLOGIA SERVIZIO")
   private String codiceTipologiaServizio;
-  @CsvBindByPosition(position = 6)
+  @CsvBindByName(column = "TIPO SERVIZIO")
   private String tipoServizio;
-  @CsvBindByPosition(position = 7)
+  @CsvBindByName(column = "MOTIVO GIURIDICO DELLA RISCOSSIONE")
   private String motivoGiuridicoRiscossione;
-  @CsvBindByPosition(position = 8)
+  @CsvBindByName(column = "DESCRIZIONE TIPO SERVIZIO")
   private String descrizioneTipoServizio;
-  @CsvBindByPosition(position = 9)
+  @CsvBindByName(column = "VERSIONE TASSONOMIA")
   private String versioneTassonomia;
-  @CsvBindByPosition(position = 10)
+  @CsvBindByName(column = "DATI SPECIFICI DI INCASSO")
   private String datiSpecificiIncasso;
-  @CsvBindByPosition(position = 11)
+  @CsvBindByName(column = "DATA INIZIO VALIDITA")
   private String dataInizioValidita;
-  @CsvBindByPosition(position = 12)
+  @CsvBindByName(column = "DATA FINE VALIDITA")
   private String dataFineValidita;
-  @CsvBindByPosition(position = 13)
+  @CsvBindByName(column = "COMBINAZIONE TOPIC E SUBTOPIC")
   private String combinazioneTopicSubtopic;
-  @CsvBindByPosition(position = 14)
+  @CsvBindByName(column = "FLAG NUOVA COMBINAZIONE")
   private String flagNuovaCombinazione;
 }

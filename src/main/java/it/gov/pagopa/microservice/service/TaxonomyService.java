@@ -46,7 +46,7 @@ public class TaxonomyService {
     try {
       List<TaxonomyObjectCsv> objects = new CsvToBeanBuilder<TaxonomyObjectCsv>(new InputStreamReader(new URL(stringUrl).openStream(), StandardCharsets.UTF_8))
               .withSeparator(';')
-              .withSkipLines(1)
+              .withSkipLines(0)
               .withType(TaxonomyObjectCsv.class)
               .build()
               .parse();
