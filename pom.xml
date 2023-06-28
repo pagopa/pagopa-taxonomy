@@ -11,9 +11,12 @@
   </parent>
 
   <groupId>it.gov.pagopa</groupId>
-  <artifactId>microservice</artifactId>
-  <version>0.0.0</version>
-  <description>Your description</description>
+  <artifactId>taxonomy</artifactId>
+  <version>1.0.0</version>
+  <description>
+    An application for managing the taxonomy of payments. Can generate version-specific JSONs from a csv
+    file on a Google Drive.
+  </description>
 
   <properties>
     <java.version>11</java.version>
