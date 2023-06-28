@@ -1,0 +1,313 @@
+{
+    "openapi": "3.0.1",
+    "info": {
+        "description": "Your description",
+        "termsOfService": "https://www.pagopa.gov.it/",
+        "title": "microservice",
+        "version": "0.0.0"
+    },
+    "servers": [
+        {
+            "description": "Generated server url",
+            "url": "http://localhost:8080"
+        }
+    ],
+    "paths": {
+        "/generate": {
+            "get": {
+                "operationId": "updateTaxonomy",
+                "responses": {
+                    "200": {
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GenericMessage"
+                                }
+                            }
+                        },
+                        "description": "OK",
+                        "headers": {
+                            "X-Request-Id": {
+                                "description": "This header identifies the call",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GenericMessage"
+                                }
+                            }
+                        },
+                        "description": "Not Found, cannot access CSV file.",
+                        "headers": {
+                            "X-Request-Id": {
+                                "description": "This header identifies the call",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "content": {
+                            "*/*": {
+                                "schema": {
+                                    "$ref": "#/components/schemas/GenericMessage"
+                                }
+                            }
+                        },
+                        "description": "Service unavailable",
+                        "headers": {
+                            "X-Request-Id": {
+                                "description": "This header identifies the call",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Generates taxonomy JSON file",
+                "tags": [
+                    "taxonomy-controller"
+                ]
+            },
+            "parameters": [
+                {
+                    "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+                    "in": "header",
+                    "name": "X-Request-Id",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ]
+        },
+        "/taxonomy.{ext}": {
+            "get": {
+                "operationId": "getTaxonomy",
+                "parameters": [
+                    {
+                        "in": "path",
+                        "name": "ext",
+                        "required": true,
+                        "schema": {
+                            "type": "string"
+                        }
+                    },
+                    {
+                        "in": "query",
+                        "name": "version",
+                        "required": false,
+                        "schema": {
+                            "type": "string",
+                            "default": "standard"
+                        }
+                    }
+                ],
+                "responses": {
+                    "200": {
+                        "content": {
+                            "application/json": {
+                                "schema": {
+                                    "oneOf": [
+                                        {
+                                            "$ref": "#/components/schemas/TaxonomyObjectStandard"
+                                        },
+                                        {
+                                            "$ref": "#/components/schemas/TaxonomyObjectDatalake"
+                                        }
+                                    ]
+                                }
+                            }
+                        },
+                        "description": "OK",
+                        "headers": {
+                            "X-Request-Id": {
+                                "description": "This header identifies the call",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "400": {
+                        "content": {
+                            "application/json": {}
+                        },
+                        "description": "Bad Request, file extension or version do not exist.",
+                        "headers": {
+                            "X-Request-Id": {
+                                "description": "This header identifies the call",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "404": {
+                        "content": {
+                            "application/json": {}
+                        },
+                        "description": "Not Found, JSON file not found.",
+                        "headers": {
+                            "X-Request-Id": {
+                                "description": "This header identifies the call",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    },
+                    "500": {
+                        "content": {
+                            "application/json": {}
+                        },
+                        "description": "Service unavailable",
+                        "headers": {
+                            "X-Request-Id": {
+                                "description": "This header identifies the call",
+                                "schema": {
+                                    "type": "string"
+                                }
+                            }
+                        }
+                    }
+                },
+                "summary": "Get Taxonomy",
+                "tags": [
+                    "taxonomy-controller"
+                ]
+            },
+            "parameters": [
+                {
+                    "description": "This header identifies the call, if not passed it is self-generated. This ID is returned in the response.",
+                    "in": "header",
+                    "name": "X-Request-Id",
+                    "schema": {
+                        "type": "string"
+                    }
+                }
+            ]
+        }
+    },
+    "components": {
+        "schemas": {
+            "GenericMessage": {
+                "type": "object",
+                "properties": {
+                    "message": {
+                        "type": "string"
+                    }
+                }
+            },
+            "TaxonomyObjectDatalake": {
+                "type": "object",
+                "properties": {
+                    "CODICE TIPO ENTE CREDITORE": {
+                        "type": "string"
+                    },
+                    "CODICE TIPOLOGIA SERVIZIO": {
+                        "type": "string"
+                    },
+                    "COMBINAZIONE TOPIC E SUBTOPIC": {
+                        "type": "string"
+                    },
+                    "DATA FINE VALIDITA": {
+                        "type": "string"
+                    },
+                    "DATA INIZIO VALIDITA": {
+                        "type": "string"
+                    },
+                    "DATI SPECIFICI INCASSO": {
+                        "type": "string"
+                    },
+                    "DESCRIZIONE MACRO AREA": {
+                        "type": "string"
+                    },
+                    "DESCRIZIONE TIPO SERVIZIO": {
+                        "type": "string"
+                    },
+                    "FLAG NUOVA COMBINAZIONE": {
+                        "type": "string"
+                    },
+                    "MOTIVO GIURIDICO DELLA RISCOSSIONE": {
+                        "type": "string"
+                    },
+                    "NOME MACRO AREA": {
+                        "type": "string"
+                    },
+                    "PROGRESSIVO MACRO AREA PER ENTE CREDITORE": {
+                        "type": "string"
+                    },
+                    "TIPO ENTE CREDITORE": {
+                        "type": "string"
+                    },
+                    "TIPO SERVIZIO": {
+                        "type": "string"
+                    },
+                    "VERSIONE TASSONOMIA": {
+                        "type": "string"
+                    }
+                }
+            },
+            "TaxonomyObjectStandard": {
+                "type": "object",
+                "properties": {
+                    "CODICE TIPO ENTE CREDITORE": {
+                        "type": "string"
+                    },
+                    "CODICE TIPOLOGIA SERVIZIO": {
+                        "type": "string"
+                    },
+                    "DATA FINE VALIDITA": {
+                        "type": "string"
+                    },
+                    "DATA INIZIO VALIDITA": {
+                        "type": "string"
+                    },
+                    "DATI SPECIFICI INCASSO": {
+                        "type": "string"
+                    },
+                    "DESCRIZIONE MACRO AREA": {
+                        "type": "string"
+                    },
+                    "DESCRIZIONE TIPO SERVIZIO": {
+                        "type": "string"
+                    },
+                    "MOTIVO GIURIDICO DELLA RISCOSSIONE": {
+                        "type": "string"
+                    },
+                    "NOME MACRO AREA": {
+                        "type": "string"
+                    },
+                    "PROGRESSIVO MACRO AREA PER ENTE CREDITORE": {
+                        "type": "string"
+                    },
+                    "TIPO ENTE CREDITORE": {
+                        "type": "string"
+                    },
+                    "TIPO SERVIZIO": {
+                        "type": "string"
+                    },
+                    "VERSIONE TASSONOMIA": {
+                        "type": "string"
+                    }
+                }
+            }
+        },
+        "securitySchemes": {
+            "ApiKey": {
+                "description": "The API key to access this function app.",
+                "in": "header",
+                "name": "Ocp-Apim-Subscription-Key",
+                "type": "apiKey"
+            }
+        }
+    }
+}

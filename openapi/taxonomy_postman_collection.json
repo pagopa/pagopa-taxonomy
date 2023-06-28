@@ -1,0 +1,67 @@
+{
+	"info": {
+		"_postman_id": "a8911df9-918c-4402-8d65-0908a687bff3",
+		"name": "Taxonomy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "26451960"
+	},
+	"item": [
+		{
+			"name": "Generate JSON",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host_config}}/generate",
+					"host": [
+						"{{host_config}}"
+					],
+					"path": [
+						"generate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET Taxonomy as Standard JSON",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host_config}}/taxonomy.json",
+					"host": [
+						"{{host_config}}"
+					],
+					"path": [
+						"taxonomy.json"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET Taxonomy as Datalake JSON",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host_config}}/taxonomy.json?version=datalake",
+					"host": [
+						"{{host_config}}"
+					],
+					"path": [
+						"taxonomy.json"
+					],
+					"query": [
+						{
+							"key": "version",
+							"value": "datalake"
+						}
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
