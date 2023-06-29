@@ -1,6 +1,7 @@
 package it.gov.pagopa.taxonomy.controller;
 
 import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.Parameter;
 import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
@@ -27,10 +28,10 @@ import java.util.List;
 public class TaxonomyController {
 
   @Value("${taxonomy.supportedExtensions}")
-  String[] extensions;
+  String extensions;
 
   @Value("${taxonomy.availableVersions}")
-  String[] versions;
+  String versions;
 
   @Autowired
   TaxonomyService taxonomyService;
@@ -80,12 +81,14 @@ public class TaxonomyController {
                           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
           })
   @GetMapping("/taxonomy.{ext}")
-  public List<? extends TaxonomyObjectStandard> getTaxonomy(@PathVariable String ext,
+  public List<? extends TaxonomyObjectStandard> getTaxonomy(@PathVariable("ext")
+                                                            @Parameter(name = "ext", description = "File extension", example = "json") String ext,
                                                             @RequestParam(value = "version",
                                                                           required = false,
                                                                           defaultValue = "standard") String ver) {
-    List<String> supportedExtensions = Arrays.asList(extensions);
-    List<String> availableVersions = Arrays.asList(versions);
+
+    List<String> supportedExtensions = Arrays.asList(extensions.split(","));
+    List<String> availableVersions = Arrays.asList(versions.split(","));
     if (!supportedExtensions.contains(ext.toLowerCase()) || !availableVersions.contains(ver.toLowerCase())) {
       logger.error("The extension is not supported or the version does not exist.");
       throw new AppException(AppError.VERSION_DOES_NOT_EXIST);

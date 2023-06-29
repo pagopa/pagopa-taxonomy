@@ -1,31 +1,35 @@
 # Template for Java Spring Microservice project
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=TODO-set-your-id&metric=alert_status)](https://sonarcloud.io/dashboard?id=TODO-set-your-id)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-taxonomy&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa_pagopa-taxonomy)
 [![Integration Tests](https://github.com/pagopa/<TODO>/actions/workflows/integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/<TODO>/actions/workflows/integration_test.yml)
 
-TODO: add a description
+## Description
 
-TODO: generate a index with this tool: https://ecotrust-canada.github.io/markdown-toc/
-
-TODO: resolve all the TODOs in this template
+An application for managing the taxonomy of payments. Can generate version-specific JSONs from a csv file on a Google Drive.
 
 ---
 
 ## Api Documentation 📖
 
-See the [OpenApi 3 here.](TODO: set your url)
+See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-taxonomy/taxonomy/openapi/openapi.json)
 
 ---
 
 ## Technology Stack
 
 - Java 11
-- Spring Boot
-- Spring Web
-- Hibernate
-- JPA
-- ...
-- TODO
+- spring-boot-devtools
+- spring-boot-configuration-processor
+- caffeine
+- springdoc-openapi-ui
+- h2
+- modelmapper
+- mapstruct
+- lombok
+- junit
+- spring-boot-maven-plugin
+- mapstruct-processor
+
 
 ---
 

@@ -6,7 +6,6 @@ if [ $(npm list -g | grep -c newman) -eq 0 ]; then
 fi
 
 # run the collection
-# TODO: add your files and edit the following command
 newman run taxonomy.postman_collection.json \
   --environment=local.postman_environment.json \
   --reporters cli,junit \

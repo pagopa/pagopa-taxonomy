@@ -1,10 +1,10 @@
 {
     "openapi": "3.0.1",
     "info": {
-        "description": "Your description",
+        "description": "An application for managing the taxonomy of payments. Can generate version-specific JSONs from a csv",
         "termsOfService": "https://www.pagopa.gov.it/",
-        "title": "microservice",
-        "version": "0.0.0"
+        "title": "taxonomy",
+        "version": "1.0.0"
     },
     "servers": [
         {
