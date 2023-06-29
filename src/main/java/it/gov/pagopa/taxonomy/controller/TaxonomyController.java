@@ -95,5 +95,4 @@ public class TaxonomyController {
     }
     return taxonomyService.getTaxonomyList(ver);
   }
-
 }
