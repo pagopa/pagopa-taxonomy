@@ -29,10 +29,10 @@ import java.util.List;
 public class TaxonomyService {
 
   @Value("${taxonomy.csvLink}")
-  final String stringUrl = null;
+  final static String stringUrl = null;
 
   @Value("${taxonomy.jsonName}")
-  final String jsonName = null;
+  final static String jsonName = null;
 
   @Autowired
   ObjectMapper objectMapper;
