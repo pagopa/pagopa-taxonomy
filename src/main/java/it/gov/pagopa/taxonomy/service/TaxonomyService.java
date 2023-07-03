@@ -30,10 +30,10 @@ import java.util.List;
 public class TaxonomyService {
 
   @Value("${taxonomy.csvLink}")
-  String stringUrl;
+  final String stringUrl = null;
 
   @Value("${taxonomy.jsonName}")
-  String jsonName;
+  final String jsonName = null;
 
   @Autowired
   ObjectMapper objectMapper;
@@ -81,7 +81,7 @@ public class TaxonomyService {
   public List<? extends TaxonomyObjectStandard> getTaxonomyList(String version) {
     List<? extends TaxonomyObjectStandard> taxonomyGeneric;
     try {
-      String taxonomy = new String(Files.readAllBytes(Paths.get(jsonName)), StandardCharsets.UTF_8);
+      String taxonomy = Files.readString(Paths.get(jsonName));
       if (version.equalsIgnoreCase(Version.STANDARD.toString())) {
         taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectStandard>>() {});
       } else if (version.equalsIgnoreCase(Version.DATALAKE.toString())) {

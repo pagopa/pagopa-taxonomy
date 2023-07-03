@@ -8,10 +8,8 @@ public class Constants {
 
 
   public static final String HEADER_REQUEST_ID = "X-Request-Id";
-  @Value("${taxonomy.csvName}")
-  public static String csvName;
 
   @Value("${taxonomy.jsonName}")
-  public static String jsonName;
+  public static final String jsonName = null;
 
 }
