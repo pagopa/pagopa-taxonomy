@@ -81,11 +81,11 @@ public class TaxonomyController {
                           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
           })
   @GetMapping("/taxonomy.{ext}")
-  public List<? extends TaxonomyObjectStandard> getTaxonomy(@PathVariable("ext")
-                                                            @Parameter(name = "ext", description = "File extension", example = "json") String ext,
-                                                            @RequestParam(value = "version",
-                                                                          required = false,
-                                                                          defaultValue = "standard") String ver) {
+  public List<? extends TaxonomyObjectStandard>getTaxonomy(@PathVariable("ext")
+              @Parameter(name = "ext", description = "File extension", example = "json") String ext,
+              @RequestParam(value = "version",
+              required = false,
+              defaultValue = "standard") String ver) {
 
     List<String> supportedExtensions = Arrays.asList(extensions.split(","));
     List<String> availableVersions = Arrays.asList(versions.split(","));

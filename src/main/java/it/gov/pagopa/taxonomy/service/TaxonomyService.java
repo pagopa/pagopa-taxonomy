@@ -6,7 +6,6 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import it.gov.pagopa.taxonomy.constants.Version;
 import it.gov.pagopa.taxonomy.exception.AppError;
 import it.gov.pagopa.taxonomy.exception.AppException;
-import it.gov.pagopa.taxonomy.mapper.TaxonomyMapper;
 import it.gov.pagopa.taxonomy.model.*;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -38,20 +37,16 @@ public class TaxonomyService {
   @Autowired
   ObjectMapper objectMapper;
 
-  @Autowired
-  TaxonomyMapper taxonomyMapper;
-
   private static final Logger logger = Logger.getLogger(TaxonomyService.class);
 
   public void updateTaxonomy() {
     try {
-      List<TaxonomyObjectCsv> objects = new CsvToBeanBuilder<TaxonomyObjectCsv>(new InputStreamReader(new URL(stringUrl).openStream(), StandardCharsets.UTF_8))
+      List<TaxonomyObject> objectList = new CsvToBeanBuilder<TaxonomyObject>(new InputStreamReader(new URL(stringUrl).openStream(), StandardCharsets.UTF_8))
               .withSeparator(';')
               .withSkipLines(0)
-              .withType(TaxonomyObjectCsv.class)
+              .withType(TaxonomyObject.class)
               .build()
               .parse();
-      List<TaxonomyObject> objectList = taxonomyMapper.taxonomyCsvListToTaxonomyObjectList(objects);
       byte[] jsonBytes = objectMapper.writeValueAsBytes(objectList);
       FileOutputStream outputStream = new FileOutputStream(jsonName);
       outputStream.write(jsonBytes);
