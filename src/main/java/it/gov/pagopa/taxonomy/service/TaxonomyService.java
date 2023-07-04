@@ -1,6 +1,8 @@
 package it.gov.pagopa.taxonomy.service;
 
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
+import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.bean.CsvToBeanBuilder;
 import it.gov.pagopa.taxonomy.constants.Version;
@@ -29,10 +31,10 @@ import java.util.List;
 public class TaxonomyService {
 
   @Value("${taxonomy.csvLink}")
-  final static String stringUrl = null;
+  final String stringUrl = null;
 
   @Value("${taxonomy.jsonName}")
-  final static String jsonName = null;
+  final String jsonName = null;
 
   @Autowired
   ObjectMapper objectMapper;
@@ -90,7 +92,11 @@ public class TaxonomyService {
     } catch (NoSuchFileException nsf) {
       logger.error("Failed to retrieve the file.");
       throw new AppException(AppError.FILE_DOES_NOT_EXIST);
-    } catch (Exception exc) {
+    } catch (JsonProcessingException jpExc) {
+      logger.error("Failed to parse JSON file.");
+      throw new AppException(AppError.JSON_PARSING_ERROR);
+    }
+    catch (Exception exc) {
       logger.error("Internal server error.");
       throw new AppException(AppError.INTERNAL_SERVER_ERROR);
     }

@@ -14,7 +14,8 @@ public enum AppError {
   CONNECTION_REFUSED(HttpStatus.NOT_FOUND, "Connection Refused", "Could not connect to host"),
   MALFORMED_URL(HttpStatus.INTERNAL_SERVER_ERROR, "Malformed URL", "The CSV file url provided is malformed"),
   ERROR_READING_WRITING(HttpStatus.INTERNAL_SERVER_ERROR, "IOException", "Error when reading or writing the file"),
-  CSV_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Parsing Error", "Error when parsing the CSV file");
+  CSV_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Parsing Error", "Error when parsing the CSV file"),
+  JSON_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Parsing Error", "Error when parsing the JSON file, (file could be empty or corrupted, generate a new one)");
 
 
   public final HttpStatus httpStatus;
