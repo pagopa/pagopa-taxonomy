@@ -81,12 +81,10 @@ public class TaxonomyService {
       String taxonomy = Files.readString(Paths.get(jsonName));
       if (version.equalsIgnoreCase(Version.STANDARD.toString())) {
         taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectStandard>>() {});
-      } else if (version.equalsIgnoreCase(Version.DATALAKE.toString())) {
-        taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectDatalake>>() {});
       } else {
-        logger.error("The version does not exist.");
-        throw new AppException(AppError.VERSION_DOES_NOT_EXIST);
+        taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectDatalake>>() {});
       }
+
       logger.info("Successfully retrieved the taxonomy version.");
       return taxonomyGeneric;
     } catch (NoSuchFileException nsf) {
