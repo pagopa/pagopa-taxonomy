@@ -4,7 +4,7 @@
 FROM maven:3.8.4-jdk-11-slim as buildtime
 WORKDIR /build
 COPY . .
-RUN mvn -DskipTests=true -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true clean package
+RUN mvn -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true clean package
 
 FROM adoptopenjdk/openjdk11:alpine-jre as builder
 COPY --from=buildtime /build/target/*.jar application.jar

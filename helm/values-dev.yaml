@@ -3,7 +3,7 @@ microservice-chart:
   nameOverride: ""
   fullnameOverride: ""
   image:
-    repository: ghcr.io/pagopa/yourname # TODO
+    repository: ghcr.io/pagopa/pagopa-taxonomy
     tag: "0.0.0"
     pullPolicy: Always
   livenessProbe:
@@ -101,7 +101,7 @@ microservice-chart:
     deployment:
       create: true
       image:
-        repository: ghcr.io/pagopa/yourname # TODO
+        repository: ghcr.io/pagopa/pagopa-taxonomy
         tag: "0.0.0"
         pullPolicy: Always
       envConfig: { }
