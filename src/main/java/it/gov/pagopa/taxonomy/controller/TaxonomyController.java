@@ -6,6 +6,7 @@ import io.swagger.v3.oas.annotations.media.Content;
 import io.swagger.v3.oas.annotations.media.Schema;
 import io.swagger.v3.oas.annotations.responses.ApiResponse;
 import io.swagger.v3.oas.annotations.responses.ApiResponses;
+import it.gov.pagopa.taxonomy.constants.Version;
 import it.gov.pagopa.taxonomy.controller.response.GenericMessage;
 import it.gov.pagopa.taxonomy.exception.AppError;
 import it.gov.pagopa.taxonomy.exception.AppException;
@@ -13,6 +14,7 @@ import it.gov.pagopa.taxonomy.model.TaxonomyObject;
 import it.gov.pagopa.taxonomy.model.TaxonomyObjectDatalake;
 import it.gov.pagopa.taxonomy.model.TaxonomyObjectStandard;
 import it.gov.pagopa.taxonomy.service.TaxonomyService;
+import org.apache.commons.lang3.EnumUtils;
 import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
@@ -30,9 +32,6 @@ public class TaxonomyController {
 
   @Value("${taxonomy.supportedExtensions}")
   private String extensions;
-
-  @Value("${taxonomy.availableVersions}")
-  private String versions;
 
   @Autowired
   private TaxonomyService taxonomyService;
@@ -89,8 +88,7 @@ public class TaxonomyController {
               defaultValue = "standard") String ver) {
 
     List<String> supportedExtensions = Arrays.asList(extensions.split(","));
-    List<String> availableVersions = Arrays.asList(versions.split(","));
-    if (!supportedExtensions.contains(ext.toLowerCase()) || !availableVersions.contains(ver.toLowerCase())) {
+    if (!supportedExtensions.contains(ext.toLowerCase()) || !EnumUtils.isValidEnumIgnoreCase(Version.class, ver)) {
       logger.error("The extension is not supported or the version does not exist.");
       throw new AppException(AppError.VERSION_DOES_NOT_EXIST);
     }
