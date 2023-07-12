@@ -28,13 +28,13 @@ import java.util.List;
 public class TaxonomyController {
 
   @Value("${taxonomy.supportedExtensions}")
-  String extensions;
+  private String extensions;
 
   @Value("${taxonomy.availableVersions}")
-  String versions;
+  private String versions;
 
   @Autowired
-  TaxonomyService taxonomyService;
+  private TaxonomyService taxonomyService;
 
   private static final Logger logger = Logger.getLogger(TaxonomyController.class);
   @Operation(

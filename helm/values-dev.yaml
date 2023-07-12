@@ -66,10 +66,9 @@ microservice-chart:
     APP_LOGGING_LEVEL: 'DEBUG'
     DEFAULT_LOGGING_LEVEL: 'INFO'
     CORS_CONFIGURATION: '{"origins": ["*"], "methods": ["*"]}'
-    csvLink: 'https://drive.google.com/uc?id=1vRg7_hQA_7XNG6qULo_y0t_GXtdnIHKw&export=download'
-    jsonName: 'data/taxonomy.json'
-    supportedExtensions: 'json'
-    availableVersions: 'standard,datalake'
+    CSV_LINK: 'https://drive.google.com/uc?id=1vRg7_hQA_7XNG6qULo_y0t_GXtdnIHKw&export=download'
+    JSON_NAME: 'data/taxonomy.json'
+    SUPPORTED_EXTENSIONS: 'json'
   envSecret:
     # required
     APPLICATIONINSIGHTS_CONNECTION_STRING: 'ai-d-connection-string'
