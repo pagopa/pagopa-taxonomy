@@ -7,7 +7,7 @@ import lombok.*;
 @Setter
 public class TaxonomyObjectStandard extends TaxonomyObject {
   @JsonIgnore
-  private String combinazioneTopicSubtopic;
+  private String topicSubtopicCombination;
   @JsonIgnore
-  private String flagNuovaCombinazione;
+  private String newCombinationFlag;
 }

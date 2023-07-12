@@ -1,7 +1,7 @@
 package it.gov.pagopa.taxonomy.service;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.opencsv.bean.CsvToBeanBuilder;
 import it.gov.pagopa.taxonomy.constants.Version;
 import it.gov.pagopa.taxonomy.exception.AppError;
@@ -83,7 +83,7 @@ public class TaxonomyService {
     }
 
   public List<TaxonomyObject> getTaxonomyList(String version) {
-    List<TaxonomyObject> taxonomyGeneric = null;
+    List<TaxonomyObject> taxonomyGeneric;
     try {
       String taxonomy = Files.readString(Paths.get(jsonName));
       if (version.equalsIgnoreCase(Version.STANDARD.toString())) {

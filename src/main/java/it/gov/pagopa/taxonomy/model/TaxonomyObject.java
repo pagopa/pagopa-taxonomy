@@ -15,47 +15,47 @@ import lombok.*;
 public class TaxonomyObject {
   @CsvBindByName(column = "CODICE TIPO ENTE CREDITORE", required = true)
   @JsonProperty(value="CODICE TIPO ENTE CREDITORE")
-  private String codiceTipoEnteCreditore;
+  private String creditorEntityTypeCode;
   @CsvBindByName(column = "TIPO ENTE CREDITORE", required = true)
   @JsonProperty(value="TIPO ENTE CREDITORE")
-  private String tipoEnteCreditore;
+  private String creditorEntityType;
   @CsvBindByName(column = "PROGRESSIVO MACRO AREA PER ENTE CREDITORE", required = true)
   @JsonProperty(value="PROGRESSIVO MACRO AREA PER ENTE CREDITORE")
-  private String progressivoMacroAreaPerEnteCreditore;
+  private String creditorEntityMacroAreaProgressive;
   @CsvBindByName(column = "NOME MACRO AREA", required = true)
   @JsonProperty(value="NOME MACRO AREA")
-  private String nomeMacroArea;
+  private String macroAreaName;
   @CsvBindByName(column = "DESCRIZIONE MACRO AREA", required = true)
   @JsonProperty(value="DESCRIZIONE MACRO AREA")
-  private String descrizioneMacroArea;
+  private String macroAreaDescription;
   @CsvBindByName(column = "CODICE TIPOLOGIA SERVIZIO", required = true)
   @JsonProperty(value="CODICE TIPOLOGIA SERVIZIO")
-  private String codiceTipologiaServizio;
+  private String serviceTypologyCode;
   @CsvBindByName(column = "TIPO SERVIZIO", required = true)
   @JsonProperty(value="TIPO SERVIZIO")
-  private String tipoServizio;
+  private String serviceType;
   @CsvBindByName(column = "MOTIVO GIURIDICO DELLA RISCOSSIONE", required = true)
   @JsonProperty(value="MOTIVO GIURIDICO DELLA RISCOSSIONE")
-  private String motivoGiuridicoRiscossione;
+  private String legalBasisOfCollection;
   @CsvBindByName(column = "DESCRIZIONE TIPO SERVIZIO", required = true)
   @JsonProperty(value="DESCRIZIONE TIPO SERVIZIO")
-  private String descrizioneTipoServizio;
+  private String serviceTypeDescription;
   @CsvBindByName(column = "VERSIONE TASSONOMIA", required = true)
   @JsonProperty(value="VERSIONE TASSONOMIA")
-  private String versioneTassonomia;
+  private String taxonomyVersion;
   @CsvBindByName(column = "DATI SPECIFICI DI INCASSO", required = true)
   @JsonProperty(value="DATI SPECIFICI INCASSO")
-  private String datiSpecificiIncasso;
+  private String specificCollectionData;
   @CsvBindByName(column = "DATA INIZIO VALIDITA", required = true)
   @JsonProperty(value="DATA INIZIO VALIDITA")
-  private String dataInizioValidita;
+  private String validityStartDate;
   @CsvBindByName(column = "DATA FINE VALIDITA", required = true)
   @JsonProperty(value="DATA FINE VALIDITA")
-  private String dataFineValidita;
+  private String validityEndDate;
   @CsvBindByName(column = "COMBINAZIONE TOPIC E SUBTOPIC", required = true)
   @JsonProperty(value="COMBINAZIONE TOPIC E SUBTOPIC")
-  private String combinazioneTopicSubtopic;
+  private String topicSubtopicCombination;
   @CsvBindByName(column = "FLAG NUOVA COMBINAZIONE", required = true)
   @JsonProperty(value="FLAG NUOVA COMBINAZIONE")
-  private String flagNuovaCombinazione;
+  private String newCombinationFlag;
 }
