@@ -9,6 +9,7 @@ import io.swagger.v3.oas.annotations.responses.ApiResponses;
 import it.gov.pagopa.taxonomy.controller.response.GenericMessage;
 import it.gov.pagopa.taxonomy.exception.AppError;
 import it.gov.pagopa.taxonomy.exception.AppException;
+import it.gov.pagopa.taxonomy.model.TaxonomyObject;
 import it.gov.pagopa.taxonomy.model.TaxonomyObjectDatalake;
 import it.gov.pagopa.taxonomy.model.TaxonomyObjectStandard;
 import it.gov.pagopa.taxonomy.service.TaxonomyService;
@@ -81,9 +82,9 @@ public class TaxonomyController {
                           content = @Content(mediaType = MediaType.APPLICATION_JSON_VALUE)),
           })
   @GetMapping("/taxonomy.{ext}")
-  public List<? extends TaxonomyObjectStandard>getTaxonomy(@PathVariable("ext")
+  public List<TaxonomyObject>getTaxonomy(@PathVariable("ext")
               @Parameter(name = "ext", description = "File extension", example = "json") String ext,
-              @RequestParam(value = "version",
+                                         @RequestParam(value = "version",
               required = false,
               defaultValue = "standard") String ver) {
 

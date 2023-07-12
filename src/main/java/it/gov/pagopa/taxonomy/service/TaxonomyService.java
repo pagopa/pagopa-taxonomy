@@ -1,8 +1,6 @@
 package it.gov.pagopa.taxonomy.service;
 
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
-import com.fasterxml.jackson.databind.JsonMappingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.bean.CsvToBeanBuilder;
 import it.gov.pagopa.taxonomy.constants.Version;
@@ -13,7 +11,6 @@ import org.jboss.logging.Logger;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Service;
-
 import java.io.FileNotFoundException;
 import java.io.FileOutputStream;
 import java.io.IOException;
@@ -75,16 +72,21 @@ public class TaxonomyService {
     }
   }
 
-  public List<? extends TaxonomyObjectStandard> getTaxonomyList(String version) {
-    List<? extends TaxonomyObjectStandard> taxonomyGeneric;
+  public List<TaxonomyObject> getTaxonomyList(String version) {
+    List<TaxonomyObject> taxonomyGeneric = null;
     try {
       String taxonomy = Files.readString(Paths.get(jsonName));
       if (version.equalsIgnoreCase(Version.STANDARD.toString())) {
-        taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectStandard>>() {});
+        taxonomyGeneric = objectMapper.convertValue(
+                taxonomyGeneric,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, TaxonomyObjectStandard.class)
+        );
       } else {
-        taxonomyGeneric = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectDatalake>>() {});
+        taxonomyGeneric = objectMapper.convertValue(
+                taxonomyGeneric,
+                objectMapper.getTypeFactory().constructCollectionType(List.class, TaxonomyObjectDatalake.class)
+        );
       }
-
       logger.info("Successfully retrieved the taxonomy version.");
       return taxonomyGeneric;
     } catch (NoSuchFileException nsf) {
