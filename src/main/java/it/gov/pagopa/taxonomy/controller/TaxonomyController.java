@@ -66,8 +66,8 @@ public class TaxonomyController {
                           description = "OK",
                           content =
                           @Content(
-                                  mediaType = MediaType.APPLICATION_JSON_VALUE,
-                                  schema = @Schema(oneOf = { TaxonomyObjectStandard.class, TaxonomyObjectDatalake.class } ))),
+                                  mediaType = MediaType.APPLICATION_JSON_VALUE
+                                  )),
                   @ApiResponse(
                           responseCode = "400",
                           description = "Bad Request, file extension or version do not exist.",

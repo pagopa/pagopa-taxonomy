@@ -1,6 +1,6 @@
 package it.gov.pagopa.taxonomy.service;
-
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.opencsv.bean.CsvToBeanBuilder;
 import it.gov.pagopa.taxonomy.constants.Version;
@@ -28,24 +28,27 @@ import java.util.List;
 public class TaxonomyService {
 
   @Value("${taxonomy.csvLink}")
-  final String stringUrl = null;
+  private String stringUrl;
 
   @Value("${taxonomy.jsonName}")
-  final String jsonName = null;
+  private String jsonName;
 
   @Autowired
-  ObjectMapper objectMapper;
+  private ObjectMapper objectMapper;
 
   private static final Logger logger = Logger.getLogger(TaxonomyService.class);
 
   public void updateTaxonomy() {
     try {
-      List<TaxonomyObject> objectList = new CsvToBeanBuilder<TaxonomyObject>(new InputStreamReader(new URL(stringUrl).openStream(), StandardCharsets.UTF_8))
-              .withSeparator(';')
-              .withSkipLines(0)
-              .withType(TaxonomyObject.class)
-              .build()
-              .parse();
+      logger.info("Updating taxonomy from: " + stringUrl);
+      logger.info("Saving JSON in: " + jsonName);
+      List<TaxonomyObject> objectList = new CsvToBeanBuilder<TaxonomyObject>(
+          new InputStreamReader(new URL(stringUrl).openStream(), StandardCharsets.UTF_8))
+          .withSeparator(';')
+          .withSkipLines(0)
+          .withType(TaxonomyObject.class)
+          .build()
+          .parse();
       byte[] jsonBytes = objectMapper.writeValueAsBytes(objectList);
       FileOutputStream outputStream = new FileOutputStream(jsonName);
       outputStream.write(jsonBytes);
@@ -55,7 +58,7 @@ public class TaxonomyService {
       logger.error("Failed to establish a connection.");
       throw new AppException(AppError.CONNECTION_REFUSED);
     } catch (FileNotFoundException fnfException) {
-      logger.error("Failed to retrieve the file.");
+      logger.error("Failed to read CSV file or failed to write JSON.");
       throw new AppException(AppError.FILE_DOES_NOT_EXIST);
     } catch (MalformedURLException muException) {
       logger.error("Malformed URL exception.");
@@ -66,26 +69,29 @@ public class TaxonomyService {
     } catch (IllegalStateException isException) {
       logger.error("CSV parsing error.");
       throw new AppException(AppError.CSV_PARSING_ERROR);
-    } catch (Exception e) {
-      logger.error("Error occurred during update.");
-      throw new AppException(AppError.GENERATE_FILE);
+    } catch (RuntimeException runtimeExc){
+      if(runtimeExc.getCause().toString().startsWith("com.opencsv.exceptions.CsvRequiredFieldEmptyException")){
+        logger.error("Malformed CSV.");
+        throw new AppException(AppError.MALFORMED_CSV);
+      } else {
+        throw new AppException(AppError.CSV_PARSING_ERROR);
+      }
+    } catch(Exception e) {
+        logger.error("Error occurred during update.");
+        throw new AppException(AppError.GENERATE_FILE);
+      }
     }
-  }
 
   public List<TaxonomyObject> getTaxonomyList(String version) {
     List<TaxonomyObject> taxonomyGeneric = null;
     try {
       String taxonomy = Files.readString(Paths.get(jsonName));
       if (version.equalsIgnoreCase(Version.STANDARD.toString())) {
-        taxonomyGeneric = objectMapper.convertValue(
-                taxonomyGeneric,
-                objectMapper.getTypeFactory().constructCollectionType(List.class, TaxonomyObjectStandard.class)
-        );
+        List<TaxonomyObjectStandard> tempList = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectStandard>>() {});
+        taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<List<TaxonomyObject>>() {});
       } else {
-        taxonomyGeneric = objectMapper.convertValue(
-                taxonomyGeneric,
-                objectMapper.getTypeFactory().constructCollectionType(List.class, TaxonomyObjectDatalake.class)
-        );
+        List<TaxonomyObjectDatalake> tempList = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectDatalake>>() {});
+        taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<List<TaxonomyObject>>() {});
       }
       logger.info("Successfully retrieved the taxonomy version.");
       return taxonomyGeneric;

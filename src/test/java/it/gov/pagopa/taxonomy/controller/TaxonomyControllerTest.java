@@ -15,12 +15,9 @@ import org.springframework.test.context.TestPropertySource;
 import org.springframework.test.web.servlet.MockMvc;
 import org.springframework.test.web.servlet.request.MockMvcRequestBuilders;
 
-import javax.print.attribute.standard.Media;
-
 @SpringBootTest(properties = { "taxonomy.jsonName=src/test/resources/taxonomy.json" })
 @AutoConfigureMockMvc
-
-class ControllerTest {
+class TaxonomyControllerTest {
   @Autowired
   private MockMvc mockMvc;
 
@@ -30,13 +27,13 @@ class ControllerTest {
     assertTrue(true);
   }
 
- // Google drive causing problems at times.
- // @Test
- // void generateTaxonomy() throws Exception {
- //   this.mockMvc.perform(MockMvcRequestBuilders.get("/generate"))
- //   .andDo(print())
- //   .andExpect(status().isOk());
- // }
+  // Google drive causing problems at times.
+  @Test
+  void generateTaxonomy() throws Exception {
+    this.mockMvc.perform(MockMvcRequestBuilders.get("/generate"))
+    .andDo(print())
+    .andExpect(status().isOk());
+  }
   @Test
   void getStandardJson() throws Exception {
     this.mockMvc.perform(MockMvcRequestBuilders.get("/taxonomy.json"))
@@ -74,7 +71,7 @@ class ControllerTest {
   }
   @Nested
   @TestPropertySource(properties = "taxonomy.csvLink=http://localhost:9090/file.csv")
-  public class TestWrongCsvLink {
+  class TestWrongCsvLink {
     @Autowired
     private MockMvc mockMvc;
     @Test
@@ -86,17 +83,17 @@ class ControllerTest {
   }
   @Nested
   @TestPropertySource(properties = "taxonomy.jsonName=src/test/test/none.json")
-  public class TestWrongPath{
+  class TestWrongPath{
     @Autowired
     private MockMvc mockMvc;
 
     // Google drive causing problems at times.
-    //@Test
-    //void generateTaxonomyWrongPath() throws Exception {
-    //  this.mockMvc.perform(MockMvcRequestBuilders.get("/generate"))
-    //  .andDo(print())
-    //  .andExpect(status().isInternalServerError());
-    //}
+    @Test
+    void generateTaxonomyWrongPath() throws Exception {
+      this.mockMvc.perform(MockMvcRequestBuilders.get("/generate"))
+      .andDo(print())
+      .andExpect(status().isNotFound());
+    }
 
     @Test
     void getJsonWrongPath() throws Exception {
@@ -107,11 +104,11 @@ class ControllerTest {
   }
   @Nested
   @TestPropertySource(properties = "taxonomy.jsonName=src/test/resources/corrtaxonomy.json")
-  public class TestCorruptedJson {
+  class TestCorruptedJson {
     @Autowired
     private MockMvc mockMvc;
     @Test
-    void getJsonWrongPath() throws Exception {
+    void getJsonCorrupted() throws Exception {
       this.mockMvc.perform(MockMvcRequestBuilders.get("/taxonomy.json"))
               .andDo(print())
               .andExpect(status().isInternalServerError());
