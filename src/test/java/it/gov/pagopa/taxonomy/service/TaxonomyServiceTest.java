@@ -1,10 +1,8 @@
 package it.gov.pagopa.taxonomy.service;
 
 import com.fasterxml.jackson.databind.ObjectMapper;
-import it.gov.pagopa.taxonomy.constants.Version;
 import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.TaxonomyObject;
-import it.gov.pagopa.taxonomy.model.TaxonomyObjectStandard;
 import java.io.File;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -13,10 +11,8 @@ import org.junit.jupiter.api.Test;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;
 import org.springframework.beans.factory.annotation.Autowired;
-import org.springframework.boot.test.autoconfigure.web.servlet.AutoConfigureMockMvc;
 import org.springframework.boot.test.context.SpringBootTest;
 import org.springframework.http.HttpStatus;
-import org.springframework.test.context.TestPropertySource;
 
 import java.nio.file.Files;
 import java.nio.file.Path;
@@ -31,14 +27,14 @@ class TaxonomyServiceTest {
 
   @Test
   void getStandardJson() throws Exception {
-    List<TaxonomyObject> standardList = taxonomyService.getTaxonomyList(Version.STANDARD.toString());
+    List<TaxonomyObject> standardList = taxonomyService.getTaxonomyList("standard");
     String actual = new ObjectMapper().writeValueAsString(standardList.get(0));
     String expected = Files.readString(Path.of("src/test/resources/response/get_taxonomy_standard.json"));
     JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
   }
   @Test
   void getDatalakeJsonVersion() throws Exception {
-      List<TaxonomyObject> datalakeList = taxonomyService.getTaxonomyList(Version.DATALAKE.toString());
+      List<TaxonomyObject> datalakeList = taxonomyService.getTaxonomyList("datalake");
       String actual = new ObjectMapper().writeValueAsString(datalakeList.get(0));
       String expected = Files.readString(Path.of("src/test/resources/response/get_taxonomy_datalake.json"));
       JSONAssert.assertEquals(expected, actual, JSONCompareMode.STRICT);
@@ -51,7 +47,7 @@ class TaxonomyServiceTest {
           String jsonName = "src/test/test/none.json";
           ReflectionTestUtils.setField(taxonomyServiceTest, "jsonName", jsonName);
             try {
-                taxonomyServiceTest.getTaxonomyList(Version.STANDARD.toString());
+                taxonomyServiceTest.getTaxonomyList("standard");
                 fail();
             }catch(AppException exc) {
                 assertEquals(HttpStatus.NOT_FOUND, exc.getHttpStatus());
@@ -69,7 +65,7 @@ class TaxonomyServiceTest {
             String jsonName = "taxonomy.jsonName=src/test/resources/corrtaxonomy.json";
             ReflectionTestUtils.setField(taxonomyServiceTest, "jsonName", jsonName);
             try {
-                taxonomyServiceTest.getTaxonomyList(Version.STANDARD.toString());
+                taxonomyServiceTest.getTaxonomyList("standard");
                 fail();
             }catch(AppException exc) {
                 assertEquals(HttpStatus.NOT_FOUND, exc.getHttpStatus());
