@@ -11,7 +11,7 @@ An application for managing the taxonomy of payments. Can generate version-speci
 
 ## Api Documentation 📖
 
-See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-taxonomy/taxonomy/openapi/openapi.json)
+See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-taxonomy/main/openapi/openapi.json)
 
 ---
 
