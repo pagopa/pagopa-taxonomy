@@ -1,0 +1,6 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<testsuites name="Taxonomy" tests="3" time="0.977">
+  <testsuite name="Generate JSON" id="37441324-66d6-42a2-82a5-c95035b2ac1b" timestamp="2023-06-27T15:38:12.144Z" tests="0" failures="0" errors="0" time="0.935"/>
+  <testsuite name="GET Taxonomy as Standard JSON" id="4e80eb1d-25a3-48af-a12b-0dc211d9c859" timestamp="2023-06-27T15:38:12.144Z" tests="0" failures="0" errors="0" time="0.025"/>
+  <testsuite name="GET Taxonomy as Datalake JSON" id="58f02cd7-b15c-4140-a664-11403a9e37ce" timestamp="2023-06-27T15:38:12.144Z" tests="0" failures="0" errors="0" time="0.017"/>
+</testsuites>
