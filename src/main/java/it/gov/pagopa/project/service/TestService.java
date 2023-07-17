@@ -1,10 +1,10 @@
 package it.gov.pagopa.project.service;
-import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import java.io.IOException;
 import java.io.InputStream;
+import java.util.Arrays;
 import java.util.Properties;
 
 public class TestService {
@@ -15,12 +15,21 @@ public class TestService {
       properties.load(inputStream);
     }
   }
-  public void uploadFile() throws IOException {
+
+  public void uploadFile() {
     BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
         .connectionString(properties.getProperty("AZURE_CONN_STRING"))
         .buildClient();
-    blobServiceClient.createBlobContainerIfNotExists("testcontainer");
-    BlobContainerClient blobContainerClient = blobServiceClient.getBlobContainerClient("testcontainer");
-    BlobClient blobClient = blobContainerClient.getBlobClient("test.csv");
+    blobServiceClient.createBlobContainerIfNotExists("taxonomyContainer");
+    BlobContainerClient blobContainerClient = blobServiceClient.getBlobContainerClient("taxonomyContainer");
+    blobContainerClient.getBlobClient("taxonomy.json");
+  }
+
+  public void downloadFile() throws IOException {
+    BlobServiceClient blobServiceClient = new BlobServiceClientBuilder()
+            .connectionString(properties.getProperty("AZURE_CONN_STRING"))
+            .buildClient();
+    String data = Arrays.toString(blobServiceClient.getBlobContainerClient("taxonomyContainer")
+            .getBlobClient("taxonomy.json").openInputStream().readAllBytes());
   }
 }
