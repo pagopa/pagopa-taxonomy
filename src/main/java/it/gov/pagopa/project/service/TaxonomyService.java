@@ -12,13 +12,12 @@ import it.gov.pagopa.project.constants.Version;
 import it.gov.pagopa.project.model.TaxonomyObject;
 import it.gov.pagopa.project.model.TaxonomyObjectDatalake;
 import it.gov.pagopa.project.model.TaxonomyObjectStandard;
-import java.io.InputStream;
+
+import java.io.*;
 import java.util.List;
 import java.util.Properties;
 import org.jboss.logging.Logger;
-import java.io.FileNotFoundException;
-import java.io.IOException;
-import java.io.InputStreamReader;
+
 import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
@@ -36,6 +35,7 @@ public class TaxonomyService {
   private BlobContainerClient blobContainerClient;
   private BlobClient blobClient;
   private Properties properties;
+
   public TaxonomyService() {
     objectMapper = new ObjectMapper();
     try(InputStream inputStream = getClass().getClassLoader().getResourceAsStream("application.properties")) {
@@ -101,7 +101,9 @@ public class TaxonomyService {
   public List<TaxonomyObject> getTaxonomyList(String version) throws Exception {
     List<TaxonomyObject> taxonomyGeneric;
     try {
-      String taxonomy = Files.readString(Paths.get(jsonName));
+      OutputStream outputStream = new ByteArrayOutputStream();
+      blobClient.downloadStream(outputStream);
+      String taxonomy = outputStream.toString();
       if (version.equalsIgnoreCase(Version.STANDARD.toString())) {
         List<TaxonomyObjectStandard> tempList = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectStandard>>() {});
         taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<List<TaxonomyObject>>() {});
@@ -111,16 +113,11 @@ public class TaxonomyService {
       }
       logger.info("Successfully retrieved the taxonomy version.");
       return taxonomyGeneric;
-    } catch (NoSuchFileException nsf) {
-      logger.error("Failed to retrieve the file.");
-      nsf.printStackTrace();
-      throw new Exception();
     } catch (JsonProcessingException jpExc) {
       logger.error("Failed to parse JSON file.");
       jpExc.printStackTrace();
       throw new Exception();
-    }
-    catch (Exception exc) {
+    } catch (Exception exc) {
       logger.error("Internal server error.");
       exc.printStackTrace();
       throw new Exception();
