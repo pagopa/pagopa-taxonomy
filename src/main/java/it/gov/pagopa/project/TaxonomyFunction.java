@@ -1,5 +1,6 @@
 package it.gov.pagopa.project;
 
+import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.functions.ExecutionContext;
 import com.microsoft.azure.functions.HttpMethod;
 import com.microsoft.azure.functions.HttpRequestMessage;
@@ -13,11 +14,9 @@ import it.gov.pagopa.project.constants.Extension;
 import it.gov.pagopa.project.constants.Version;
 import it.gov.pagopa.project.exception.AppResponse;
 import it.gov.pagopa.project.exception.ResponseMessage;
-import it.gov.pagopa.project.model.TaxonomyObject;
 import it.gov.pagopa.project.service.TaxonomyService;
 import org.apache.commons.lang3.EnumUtils;
 
-import java.util.List;
 import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 
@@ -57,12 +56,14 @@ public class TaxonomyFunction {
       throw new Exception();
     }
 
+    ObjectMapper objectMapper = new ObjectMapper();
+
     TaxonomyService taxonomyService = new TaxonomyService();
     AppResponse response = taxonomyService.getTaxonomyList(version);
 
     return request.createResponseBuilder(response.getResponse().getHttpStatus())
             .header("Content-Type", MediaType.APPLICATION_JSON)
-            .body(response.getResponse().getHttpStatus() == HttpStatus.OK ? response.getTaxonomyObjectList() : response.getResponse().getDetails())
+            .body(response.getResponse().getHttpStatus() == HttpStatus.OK ? objectMapper.writerWithDefaultPrettyPrinter().writeValueAsString(response.getTaxonomyObjectList()) : response.getResponse().getDetails())
             .build();
   }
 }

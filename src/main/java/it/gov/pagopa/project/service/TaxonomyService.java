@@ -1,5 +1,4 @@
 package it.gov.pagopa.project.service;
-import com.azure.core.exception.AzureException;
 import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
@@ -18,7 +17,6 @@ import it.gov.pagopa.project.model.TaxonomyObjectStandard;
 
 import java.io.*;
 import java.util.List;
-import java.util.Map;
 import java.util.Properties;
 import org.jboss.logging.Logger;
 
@@ -126,4 +124,5 @@ public class TaxonomyService {
       return new AppResponse(ResponseMessage.INTERNAL_SERVER_ERROR);
     }
   }
+
 }
