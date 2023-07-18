@@ -11,6 +11,8 @@ import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 import it.gov.pagopa.project.constants.Extension;
 import it.gov.pagopa.project.constants.Version;
+import it.gov.pagopa.project.exception.AppResponse;
+import it.gov.pagopa.project.exception.ResponseMessage;
 import it.gov.pagopa.project.model.TaxonomyObject;
 import it.gov.pagopa.project.service.TaxonomyService;
 import org.apache.commons.lang3.EnumUtils;
@@ -31,11 +33,11 @@ public class TaxonomyFunction {
       final ExecutionContext context) {
 
     TaxonomyService taxonomyService = new TaxonomyService();
-    taxonomyService.updateTaxonomy();
+    ResponseMessage response = taxonomyService.updateTaxonomy().getResponse();
 
-    return request.createResponseBuilder(HttpStatus.OK)
-        .header("Content-Type", MediaType.TEXT_PLAIN)
-        .body("Taxonomy Updated!")
+    return request.createResponseBuilder(response.getHttpStatus())
+        .header("Content-Type", MediaType.APPLICATION_JSON)
+        .body(response.getDetails())
         .build();
   }
 
@@ -47,21 +49,20 @@ public class TaxonomyFunction {
                   route = "taxonomy.{ext}",
                   authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
           @BindingName("ext") String extension,
-          final ExecutionContext context) throws Exception {
+      final ExecutionContext context) throws Exception {
 
     final String version = request.getQueryParameters().getOrDefault("version", "standard");
 
-    if (!EnumUtils.isValidEnumIgnoreCase(Extension.class, extension) ||
-            !EnumUtils.isValidEnumIgnoreCase(Version.class, version)) {
+    if (!EnumUtils.isValidEnumIgnoreCase(Extension.class, extension) || !EnumUtils.isValidEnumIgnoreCase(Version.class, version)) {
       throw new Exception();
     }
 
     TaxonomyService taxonomyService = new TaxonomyService();
-    List<TaxonomyObject> taxonomyObjectList = taxonomyService.getTaxonomyList(version);
+    AppResponse response = taxonomyService.getTaxonomyList(version);
 
-    return request.createResponseBuilder(HttpStatus.OK)
+    return request.createResponseBuilder(response.getResponse().getHttpStatus())
             .header("Content-Type", MediaType.APPLICATION_JSON)
-            .body(taxonomyObjectList)
+            .body(response.getResponse().getHttpStatus() == HttpStatus.OK ? response.getTaxonomyObjectList() : response.getResponse().getDetails())
             .build();
   }
 }

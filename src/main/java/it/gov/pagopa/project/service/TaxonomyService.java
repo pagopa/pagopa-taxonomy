@@ -1,4 +1,5 @@
 package it.gov.pagopa.project.service;
+import com.azure.core.exception.AzureException;
 import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobClient;
 import com.azure.storage.blob.BlobContainerClient;
@@ -9,12 +10,15 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.opencsv.bean.CsvToBeanBuilder;
 import it.gov.pagopa.project.constants.Version;
+import it.gov.pagopa.project.exception.AppResponse;
+import it.gov.pagopa.project.exception.ResponseMessage;
 import it.gov.pagopa.project.model.TaxonomyObject;
 import it.gov.pagopa.project.model.TaxonomyObjectDatalake;
 import it.gov.pagopa.project.model.TaxonomyObjectStandard;
 
 import java.io.*;
 import java.util.List;
+import java.util.Map;
 import java.util.Properties;
 import org.jboss.logging.Logger;
 
@@ -22,14 +26,12 @@ import java.net.ConnectException;
 import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
-import java.nio.file.Files;
-import java.nio.file.NoSuchFileException;
-import java.nio.file.Paths;
 
 public class TaxonomyService {
 
   private String stringUrl;
   private String jsonName;
+  private String azureConnString;
   private ObjectMapper objectMapper;
   private BlobServiceClient blobServiceClient;
   private BlobContainerClient blobContainerClient;
@@ -37,18 +39,19 @@ public class TaxonomyService {
   private Properties properties;
 
   public TaxonomyService() {
-    objectMapper = new ObjectMapper();
     try(InputStream inputStream = getClass().getClassLoader().getResourceAsStream("application.properties")) {
       properties = new Properties();
       properties.load(inputStream);
       this.stringUrl = properties.getProperty("CSV_URL");
       this.jsonName = properties.getProperty("JSON_NAME");
+      this.azureConnString = properties.getProperty("AZURE_CONN_STRING");
       blobServiceClient = new BlobServiceClientBuilder()
-          .connectionString(properties.getProperty("AZURE_CONN_STRING"))
+          .connectionString(azureConnString)
           .buildClient();
       blobServiceClient.createBlobContainerIfNotExists(properties.getProperty("BLOB_CONTAINER_NAME"));
       blobContainerClient = blobServiceClient.getBlobContainerClient(properties.getProperty("BLOB_CONTAINER_NAME"));
-      blobClient = blobContainerClient.getBlobClient(properties.getProperty("JSON_NAME"));
+      blobClient = blobContainerClient.getBlobClient(jsonName);
+      objectMapper = new ObjectMapper();
     } catch (IOException e) {
       System.out.println("Error in service constructor");
       e.printStackTrace();
@@ -58,7 +61,7 @@ public class TaxonomyService {
 
   private static final Logger logger = Logger.getLogger(TaxonomyService.class);
 
-  public void updateTaxonomy() {
+  public AppResponse updateTaxonomy() {
     try {
       List<TaxonomyObject> objectList = new CsvToBeanBuilder<TaxonomyObject>(
           new InputStreamReader(new URL(stringUrl).openStream(), StandardCharsets.UTF_8))
@@ -68,42 +71,40 @@ public class TaxonomyService {
           .build()
           .parse();
       byte[] jsonBytes = objectMapper.writeValueAsBytes(objectList);
-      blobClient.upload(BinaryData.fromBytes(jsonBytes));
+      blobClient.upload(BinaryData.fromBytes(jsonBytes), true);
       logger.info("Taxonomy updated successfully.");
+      return new AppResponse(ResponseMessage.TAXONOMY_UPDATED);
     } catch (ConnectException connException) {
       logger.error("Failed to establish a connection.");
-      //throw new AppException(AppError.CONNECTION_REFUSED);
+      return new AppResponse(ResponseMessage.CONNECTION_REFUSED);
     } catch (FileNotFoundException fnfException) {
       logger.error("Failed to read CSV file or failed to write JSON.");
-      //throw new AppException(AppError.FILE_DOES_NOT_EXIST);
+      return new AppResponse(ResponseMessage.FILE_DOES_NOT_EXIST);
     } catch (MalformedURLException muException) {
       logger.error("Malformed URL exception.");
-      //throw new AppException(AppError.MALFORMED_URL);
+      return new AppResponse(ResponseMessage.MALFORMED_URL);
     } catch (IOException ioException) {
       logger.error("Error occurred while reading/writing.");
-      //throw new AppException(AppError.ERROR_READING_WRITING);
+      return new AppResponse(ResponseMessage.ERROR_READING_WRITING);
     } catch (IllegalStateException isException) {
       logger.error("CSV parsing error.");
-      //throw new AppException(AppError.CSV_PARSING_ERROR);
-    } catch (RuntimeException runtimeExc){
-      if(runtimeExc.getCause().toString().startsWith("com.opencsv.exceptions.CsvRequiredFieldEmptyException")){
-        logger.error("Malformed CSV.");
-        //throw new AppException(AppError.MALFORMED_CSV);
-      } else {
-        //throw new AppException(AppError.CSV_PARSING_ERROR);
-      }
+      return new AppResponse(ResponseMessage.CSV_PARSING_ERROR);
     } catch(Exception e) {
-        logger.error("Error occurred during update.");
-        //throw new AppException(AppError.GENERATE_FILE);
+      if(e.getCause().toString().startsWith("com.opencsv.exceptions.CsvRequiredFieldEmptyException")){
+        logger.error("Malformed CSV.");
+        return new AppResponse(ResponseMessage.MALFORMED_CSV);
       }
-    }
+        logger.error("Error occurred during update.");
+        return new AppResponse(ResponseMessage.GENERATE_FILE);
+      }
+  }
 
-  public List<TaxonomyObject> getTaxonomyList(String version) throws Exception {
+  public AppResponse getTaxonomyList(String version) throws Exception {
     List<TaxonomyObject> taxonomyGeneric;
     try {
-      OutputStream outputStream = new ByteArrayOutputStream();
+      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       blobClient.downloadStream(outputStream);
-      String taxonomy = outputStream.toString();
+      String taxonomy = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
       if (version.equalsIgnoreCase(Version.STANDARD.toString())) {
         List<TaxonomyObjectStandard> tempList = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectStandard>>() {});
         taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<List<TaxonomyObject>>() {});
@@ -112,15 +113,17 @@ public class TaxonomyService {
         taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<List<TaxonomyObject>>() {});
       }
       logger.info("Successfully retrieved the taxonomy version.");
-      return taxonomyGeneric;
+      return new AppResponse(ResponseMessage.TAXONOMY_UPDATED, taxonomyGeneric);
     } catch (JsonProcessingException jpExc) {
       logger.error("Failed to parse JSON file.");
       jpExc.printStackTrace();
-      throw new Exception();
+      return new AppResponse(ResponseMessage.JSON_PARSING_ERROR);
     } catch (Exception exc) {
       logger.error("Internal server error.");
-      exc.printStackTrace();
-      throw new Exception();
+      if(exc.getMessage().contains("BlobNotFound")) {
+        return new AppResponse(ResponseMessage.JSON_NOT_FOUND);
+      }
+      return new AppResponse(ResponseMessage.INTERNAL_SERVER_ERROR);
     }
   }
 }
