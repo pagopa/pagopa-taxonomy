@@ -21,7 +21,8 @@ public enum ResponseMessage {
   // ERRORS
 
   // OK
-  TAXONOMY_UPDATED(HttpStatus.OK, "Updated", "Taxonomy updated successfully.");
+  TAXONOMY_UPDATED(HttpStatus.OK, "Updated", "Taxonomy updated successfully."),
+  TAXONOMY_RETRIEVED(HttpStatus.OK, "Retrieved", "Taxonomy retrieved successfully.");
   // OK
 
 

@@ -53,7 +53,10 @@ public class TaxonomyFunction {
     final String version = request.getQueryParameters().getOrDefault("version", "standard");
 
     if (!EnumUtils.isValidEnumIgnoreCase(Extension.class, extension) || !EnumUtils.isValidEnumIgnoreCase(Version.class, version)) {
-      throw new Exception();
+      return request.createResponseBuilder(HttpStatus.BAD_REQUEST)
+              .header("Content-Type", MediaType.TEXT_PLAIN)
+              .body("Extension or version not supported.")
+              .build();
     }
 
     ObjectMapper objectMapper = new ObjectMapper();
