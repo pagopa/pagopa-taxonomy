@@ -97,18 +97,18 @@ public class TaxonomyService {
       }
   }
 
-  public AppResponse getTaxonomyList(String version) throws Exception {
+  public AppResponse getTaxonomyList(String version) {
     List<TaxonomyObject> taxonomyGeneric;
     try {
       ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
       blobClient.downloadStream(outputStream);
-      String taxonomy = new String(outputStream.toByteArray(), StandardCharsets.UTF_8);
+      String taxonomy = outputStream.toString(StandardCharsets.UTF_8);
       if (version.equalsIgnoreCase(Version.STANDARD.toString())) {
-        List<TaxonomyObjectStandard> tempList = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectStandard>>() {});
-        taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<List<TaxonomyObject>>() {});
+        List<TaxonomyObjectStandard> tempList = objectMapper.readValue(taxonomy, new TypeReference<>() {});
+        taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<>() {});
       } else {
-        List<TaxonomyObjectDatalake> tempList = objectMapper.readValue(taxonomy, new TypeReference<List<TaxonomyObjectDatalake>>() {});
-        taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<List<TaxonomyObject>>() {});
+        List<TaxonomyObjectDatalake> tempList = objectMapper.readValue(taxonomy, new TypeReference<>() {});
+        taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<>() {});
       }
       logger.info("Successfully retrieved the taxonomy version.");
       return new AppResponse(ResponseMessage.TAXONOMY_UPDATED, taxonomyGeneric);
