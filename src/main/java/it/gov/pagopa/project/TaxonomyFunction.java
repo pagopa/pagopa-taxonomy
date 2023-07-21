@@ -30,7 +30,6 @@ public class TaxonomyFunction {
           route = "generate",
           authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
       final ExecutionContext context) {
-
     TaxonomyService taxonomyService = new TaxonomyService();
     ResponseMessage response = taxonomyService.updateTaxonomy().getResponse();
 
