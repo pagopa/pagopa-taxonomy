@@ -6,6 +6,9 @@ import it.gov.pagopa.project.exception.AppResponse;
 import it.gov.pagopa.project.model.TaxonomyObject;
 
 import java.io.File;
+import java.io.FileNotFoundException;
+import java.io.FileOutputStream;
+import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Files;
@@ -94,6 +97,25 @@ class TaxonomyServiceTest {
             AppResponse appResponse = taxonomyService.updateTaxonomy();
             Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, appResponse.getResponse().getHttpStatus());
         }catch(Exception exc) {
+            Assertions.fail();
+        }
+    }
+    @Test
+    void getCorruptedJson() throws FileNotFoundException, NoSuchFieldException, IllegalAccessException {
+        FileReader reader = new FileReader("src/test/resources/json/corrupted.json");
+        TaxonomyService taxonomyService1 = new TaxonomyService();
+        Field field = taxonomyService1.getClass().getDeclaredField("jsonString");
+        field.setAccessible(true);
+        field.set(taxonomyService1, reader.toString());
+
+        Field field1 = taxonomyService1.getClass().getDeclaredField("isTest");
+        field1.setAccessible(true);
+        field1.set(taxonomyService1, true);
+        try {
+            AppResponse appResponse = taxonomyService1.getTaxonomyList("standard");
+
+            Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, appResponse.getResponse().getHttpStatus());
+        }catch (Exception exc) {
             Assertions.fail();
         }
     }

@@ -36,7 +36,13 @@ public class TaxonomyService {
   private BlobClient blobClient;
   private Properties properties;
 
+  //TEST
+  private Boolean isTest;
+  private String jsonString;
+  //TEST
+
   public TaxonomyService() {
+    isTest = false;
     try(InputStream inputStream = getClass().getClassLoader().getResourceAsStream("application.properties")) {
       properties = new Properties();
       properties.load(inputStream);
@@ -100,9 +106,15 @@ public class TaxonomyService {
   public AppResponse getTaxonomyList(String version) {
     List<TaxonomyObject> taxonomyGeneric;
     try {
-      ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
-      blobClient.downloadStream(outputStream);
-      String taxonomy = outputStream.toString(StandardCharsets.UTF_8);
+      String taxonomy = "";
+      if (!isTest){
+        ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
+        blobClient.downloadStream(outputStream);
+        taxonomy = outputStream.toString(StandardCharsets.UTF_8);
+      }else {
+        taxonomy = jsonString;
+      }
+
       if (version.equalsIgnoreCase(Version.STANDARD.toString())) {
         List<TaxonomyObjectStandard> tempList = objectMapper.readValue(taxonomy, new TypeReference<>() {});
         taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<>() {});
@@ -114,7 +126,6 @@ public class TaxonomyService {
       return new AppResponse(ResponseMessage.TAXONOMY_UPDATED, taxonomyGeneric);
     } catch (JsonProcessingException jpExc) {
       logger.error("Failed to parse JSON file.");
-      jpExc.printStackTrace();
       return new AppResponse(ResponseMessage.JSON_PARSING_ERROR);
     } catch (Exception exc) {
       logger.error("Internal server error.");
