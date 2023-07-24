@@ -35,7 +35,7 @@ class TaxonomyServiceTest {
         try {
             AppResponse appResponse = taxonomyService.updateTaxonomy();
             Assertions.assertEquals(HttpStatus.OK, appResponse.getResponse().getHttpStatus());
-        }catch(Exception exc) {
+        } catch(Exception exc) {
             Assertions.fail();
         }
     }
@@ -66,7 +66,7 @@ class TaxonomyServiceTest {
         try {
             AppResponse appResponse = taxonomyService.updateTaxonomy();
             Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, appResponse.getResponse().getHttpStatus());
-        }catch(Exception exc) {
+        } catch(Exception exc) {
             Assertions.fail();
         }
     }
@@ -81,7 +81,7 @@ class TaxonomyServiceTest {
         try {
             AppResponse appResponse = taxonomyService.updateTaxonomy();
             Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, appResponse.getResponse().getHttpStatus());
-        }catch(Exception exc) {
+        } catch(Exception exc) {
             Assertions.fail();
         }
     }
@@ -96,7 +96,7 @@ class TaxonomyServiceTest {
         try {
             AppResponse appResponse = taxonomyService.updateTaxonomy();
             Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, appResponse.getResponse().getHttpStatus());
-        }catch(Exception exc) {
+        } catch(Exception exc) {
             Assertions.fail();
         }
     }
@@ -104,18 +104,16 @@ class TaxonomyServiceTest {
     void getCorruptedJson() throws FileNotFoundException, NoSuchFieldException, IllegalAccessException {
         FileReader reader = new FileReader("src/test/resources/json/corrupted.json");
         TaxonomyService taxonomyService1 = new TaxonomyService();
-        Field field = taxonomyService1.getClass().getDeclaredField("jsonString");
-        field.setAccessible(true);
-        field.set(taxonomyService1, reader.toString());
-
-        Field field1 = taxonomyService1.getClass().getDeclaredField("isTest");
-        field1.setAccessible(true);
-        field1.set(taxonomyService1, true);
+        Field jsonStringField = taxonomyService1.getClass().getDeclaredField("jsonString");
+        jsonStringField.setAccessible(true);
+        jsonStringField.set(taxonomyService1, reader.toString());
+        Field isTestField = taxonomyService1.getClass().getDeclaredField("isTest");
+        isTestField.setAccessible(true);
+        isTestField.set(taxonomyService1, true);
         try {
             AppResponse appResponse = taxonomyService1.getTaxonomyList("standard");
-
             Assertions.assertEquals(HttpStatus.INTERNAL_SERVER_ERROR, appResponse.getResponse().getHttpStatus());
-        }catch (Exception exc) {
+        } catch (Exception exc) {
             Assertions.fail();
         }
     }

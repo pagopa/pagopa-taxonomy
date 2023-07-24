@@ -105,16 +105,15 @@ public class TaxonomyService {
 
   public AppResponse getTaxonomyList(String version) {
     List<TaxonomyObject> taxonomyGeneric;
+    String taxonomy = "";
     try {
-      String taxonomy = "";
       if (!isTest){
         ByteArrayOutputStream outputStream = new ByteArrayOutputStream();
         blobClient.downloadStream(outputStream);
         taxonomy = outputStream.toString(StandardCharsets.UTF_8);
-      }else {
+      } else {
         taxonomy = jsonString;
       }
-
       if (version.equalsIgnoreCase(Version.STANDARD.toString())) {
         List<TaxonomyObjectStandard> tempList = objectMapper.readValue(taxonomy, new TypeReference<>() {});
         taxonomyGeneric = objectMapper.convertValue(tempList, new TypeReference<>() {});
