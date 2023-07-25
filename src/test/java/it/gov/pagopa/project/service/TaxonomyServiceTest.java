@@ -4,17 +4,14 @@ import com.fasterxml.jackson.databind.ObjectMapper;
 import com.microsoft.azure.functions.HttpStatus;
 import it.gov.pagopa.project.exception.AppResponse;
 import it.gov.pagopa.project.model.TaxonomyObject;
-
 import java.io.File;
 import java.io.FileNotFoundException;
-import java.io.FileOutputStream;
 import java.io.FileReader;
 import java.lang.reflect.Field;
 import java.net.URL;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.List;
-
 import org.junit.jupiter.api.*;
 import org.skyscreamer.jsonassert.JSONAssert;
 import org.skyscreamer.jsonassert.JSONCompareMode;

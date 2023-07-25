@@ -57,8 +57,6 @@ public class TaxonomyService {
       blobClient = blobContainerClient.getBlobClient(jsonName);
       objectMapper = new ObjectMapper();
     } catch (IOException e) {
-      System.out.println("Error in service constructor");
-      e.printStackTrace();
       throw new RuntimeException(e);
     }
   }
