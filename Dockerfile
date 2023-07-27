@@ -5,7 +5,7 @@ FROM mcr.microsoft.com/azure-functions/java:3.0-java$JAVA_VERSION-build AS insta
 COPY . /src/java-function-app
 RUN cd /src/java-function-app && \
     mkdir -p /home/site/wwwroot && \
-    mvn clean package -Dmaven.test.skip=true && \
+    mvn clean package -Dmaven.wagon.http.ssl.insecure=true -Dmaven.wagon.http.ssl.allowall=true -Dmaven.wagon.http.ssl.ignore.validity.dates=true -Dmaven.test.skip=true && \
     cd ./target/azure-functions/ && \
     cd $(ls -d */|head -n 1) && \
     cp -a . /home/site/wwwroot

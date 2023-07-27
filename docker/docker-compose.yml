@@ -1,0 +1,24 @@
+version: '3.8'
+name: pagopa-taxonomy-function
+services:
+  storage:
+    container_name: 'pagopa-taxonomy-function-storage'
+    image: mcr.microsoft.com/azure-storage/azurite
+    ports:
+      - "10000:10000"
+      - "10001:10001"
+      - "10002:10002"
+  app:
+    container_name: 'pagopa-taxonomy-function'
+    image: ${image}
+    build:
+      dockerfile: Dockerfile
+      context: ../
+    ports:
+      - "8999:80"
+    depends_on:
+      - storage
+    links:
+      - storage
+    environment:
+      - AZURE_CONN_STRING=DefaultEndpointsProtocol=http;AccountName=devstoreaccount1;AccountKey=Eby8vdM02xNOcqFlqUwJPLlmEtlCDXJ1OUzFT50uSRZ6IFsuFq2UVErCz4I6tq/K1SZFPTOtr/KBHBeksoGMGw==;BlobEndpoint=http://host.docker.internal:10000/devstoreaccount1;

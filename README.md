@@ -1,19 +1,12 @@
-# pagoPA Functions template
-
-Java template to create an Azure Function.
-
-## Function examples
-There is an example of a Http Trigger function.
-
----
+# pagoPA Taxonomy Function 
 
 ## Run locally with Docker
-`docker build -t pagopa-functions-template .`
+`cd docker`
 
-`docker run -p 8999:80 pagopa-functions-template`
+`docker compose up`
 
 ### Test
-`curl http://localhost:8999/example`
+`curl http://localhost:8999/generate`
 
 ## Run locally with Maven
 
@@ -22,10 +15,9 @@ There is an example of a Http Trigger function.
 `mvn azure-functions:run`
 
 ### Test
-`curl http://localhost:7071/example` 
+`curl http://localhost:7071/generate` 
 
 ---
-
 
 ## TODO
 Once cloned the repo, you should:

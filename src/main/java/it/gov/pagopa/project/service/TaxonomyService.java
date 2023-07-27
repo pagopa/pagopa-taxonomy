@@ -49,6 +49,8 @@ public class TaxonomyService {
       this.stringUrl = properties.getProperty("CSV_URL");
       this.jsonName = properties.getProperty("JSON_NAME");
       this.azureConnString = properties.getProperty("AZURE_CONN_STRING");
+      if (System.getenv("AZURE_CONN_STRING") != null)
+        this.azureConnString = System.getenv("AZURE_CONN_STRING");
       blobServiceClient = new BlobServiceClientBuilder()
           .connectionString(azureConnString)
           .buildClient();
