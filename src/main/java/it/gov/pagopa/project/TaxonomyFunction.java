@@ -16,7 +16,6 @@ import it.gov.pagopa.project.exception.AppResponse;
 import it.gov.pagopa.project.exception.ResponseMessage;
 import it.gov.pagopa.project.service.TaxonomyService;
 import org.apache.commons.lang3.EnumUtils;
-
 import java.util.Optional;
 import javax.ws.rs.core.MediaType;
 
@@ -32,7 +31,6 @@ public class TaxonomyFunction {
       final ExecutionContext context) {
     TaxonomyService taxonomyService = new TaxonomyService();
     ResponseMessage response = taxonomyService.updateTaxonomy().getResponse();
-
     return request.createResponseBuilder(response.getHttpStatus())
         .header("Content-Type", MediaType.APPLICATION_JSON)
         .body(response.getDetails())

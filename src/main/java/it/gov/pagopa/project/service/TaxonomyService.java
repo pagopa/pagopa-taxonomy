@@ -16,6 +16,8 @@ import it.gov.pagopa.project.model.TaxonomyObjectDatalake;
 import it.gov.pagopa.project.model.TaxonomyObjectStandard;
 
 import java.io.*;
+import java.nio.file.Files;
+import java.nio.file.Paths;
 import java.util.List;
 import java.util.Properties;
 import org.jboss.logging.Logger;
@@ -77,6 +79,12 @@ public class TaxonomyService {
       byte[] jsonBytes = objectMapper.writeValueAsBytes(objectList);
       blobClient.upload(BinaryData.fromBytes(jsonBytes), true);
       logger.info("Taxonomy updated successfully.");
+      /*List<TaxonomyObjectStandard> standardList = objectMapper.convertValue(objectList, new TypeReference<>() {});
+      List<TaxonomyObjectDatalake> datalakeList = objectMapper.convertValue(objectList, new TypeReference<>() {});
+      String standardJsonString = objectMapper.writeValueAsString(standardList);
+      String datalakeJsonString = objectMapper.writeValueAsString(datalakeList);
+      Files.write(Paths.get(properties.getProperty("STANDARD_JSON_PATH")), standardJsonString.getBytes());
+      Files.write(Paths.get(properties.getProperty("DATALAKE_JSON_PATH")), datalakeJsonString.getBytes());*/
       return new AppResponse(ResponseMessage.TAXONOMY_UPDATED);
     } catch (ConnectException connException) {
       logger.error("Failed to establish a connection.");
@@ -86,6 +94,7 @@ public class TaxonomyService {
       return new AppResponse(ResponseMessage.FILE_DOES_NOT_EXIST);
     } catch (MalformedURLException muException) {
       logger.error("Malformed URL exception.");
+
       return new AppResponse(ResponseMessage.MALFORMED_URL);
     } catch (IOException ioException) {
       logger.error("Error occurred while reading/writing.");
@@ -102,6 +111,7 @@ public class TaxonomyService {
         return new AppResponse(ResponseMessage.GENERATE_FILE);
       }
   }
+
 
   public AppResponse getTaxonomyList(String version) {
     List<TaxonomyObject> taxonomyGeneric;
