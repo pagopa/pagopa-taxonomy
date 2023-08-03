@@ -1,9 +1,9 @@
-package it.gov.pagopa.project.exception;
+package it.gov.pagopa.taxonomy.exception;
 
 
-import com.microsoft.azure.functions.HttpStatus;
+import jakarta.ws.rs.core.Response;
 
-import javax.ws.rs.core.Response;
+
 
 public interface AppErrorCodeMessageInterface {
   String errorCode();

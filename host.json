@@ -9,7 +9,7 @@
       "routePrefix": ""
     }
   },
-  "functions": [ "Info", "UpdateTrigger" ],
+  "functions": [ "Info", "UpdateTrigger"],
   "logging": {
     "applicationInsights": {
       "samplingSettings": {

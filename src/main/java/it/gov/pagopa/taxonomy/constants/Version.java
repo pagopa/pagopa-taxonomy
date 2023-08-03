@@ -1,4 +1,4 @@
-package it.gov.pagopa.project.constants;
+package it.gov.pagopa.taxonomy.constants;
 
 public enum Version {
     STANDARD,

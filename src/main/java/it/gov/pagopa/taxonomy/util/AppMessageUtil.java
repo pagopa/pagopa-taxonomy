@@ -1,4 +1,4 @@
-package it.gov.pagopa.project.util;
+package it.gov.pagopa.taxonomy.util;
 
 import java.text.MessageFormat;
 import java.util.Locale;

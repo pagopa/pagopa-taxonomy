@@ -1,4 +1,4 @@
-package it.gov.pagopa.project.exception;
+package it.gov.pagopa.taxonomy.exception;
 
 import lombok.Getter;
 

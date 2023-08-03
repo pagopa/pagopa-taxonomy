@@ -1,4 +1,4 @@
-package it.gov.pagopa.project;
+package it.gov.pagopa.taxonomy;
 
 import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobContainerClient;
@@ -11,11 +11,11 @@ import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
 import com.opencsv.bean.CsvToBeanBuilder;
-import it.gov.pagopa.project.exception.AppErrorCodeMessageEnum;
-import it.gov.pagopa.project.exception.AppException;
-import it.gov.pagopa.project.model.TaxonomyObject;
+import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
+import it.gov.pagopa.taxonomy.exception.AppException;
+import it.gov.pagopa.taxonomy.model.TaxonomyObject;
 
-import javax.ws.rs.core.MediaType;
+import jakarta.ws.rs.core.MediaType;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ConnectException;

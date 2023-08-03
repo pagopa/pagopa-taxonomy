@@ -1,4 +1,4 @@
-package it.gov.pagopa.project.model;
+package it.gov.pagopa.taxonomy.model;
 
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;

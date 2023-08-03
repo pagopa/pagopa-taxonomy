@@ -1,7 +1,6 @@
-package it.gov.pagopa.project.model;
+package it.gov.pagopa.taxonomy.model;
 
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
-import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.AccessLevel;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -12,10 +11,10 @@ import lombok.NoArgsConstructor;
 @Builder(toBuilder = true)
 @NoArgsConstructor
 @AllArgsConstructor(access = AccessLevel.PRIVATE)
-@JsonInclude(JsonInclude.Include.NON_NULL)
 @JsonIgnoreProperties(ignoreUnknown = true)
-public class AppCorsConfiguration {
+public class AppInfo {
 
-  private String[] origins;
-  private String[] methods;
+  private String name;
+  private String version;
+  private String environment;
 }

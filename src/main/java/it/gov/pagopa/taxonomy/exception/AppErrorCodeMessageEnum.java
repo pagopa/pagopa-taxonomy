@@ -1,9 +1,9 @@
-package it.gov.pagopa.project.exception;
+package it.gov.pagopa.taxonomy.exception;
 
-import it.gov.pagopa.project.util.AppConstant;
-import it.gov.pagopa.project.util.AppMessageUtil;
+import it.gov.pagopa.taxonomy.util.AppConstant;
+import it.gov.pagopa.taxonomy.util.AppMessageUtil;
 
-import javax.ws.rs.core.Response;
+import jakarta.ws.rs.core.Response;
 
 
 public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
