@@ -1,13 +1,16 @@
-//package it.gov.pagopa.project.exception;
-//
-//import com.microsoft.azure.functions.HttpStatus;
-//import lombok.Getter;
-//
-//@Getter
-//public enum ResponseMessage {
-//  // ERRORS
-//  INTERNAL_SERVER_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Internal Server Error",
-//      "Something was wrong"),
+package it.gov.pagopa.project.exception;
+
+import it.gov.pagopa.project.util.AppConstant;
+import it.gov.pagopa.project.util.AppMessageUtil;
+
+import javax.ws.rs.core.Response;
+
+
+public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
+
+  // ERRORS
+  ERROR("0500", "system.error", Response.Status.INTERNAL_SERVER_ERROR),
+  CONNECTION_REFUSED("0100", "connection.refused", Response.Status.NOT_FOUND),;
 //  VERSION_DOES_NOT_EXIST(HttpStatus.BAD_REQUEST, "Error requesting file", "Version or Extension are not supported."),
 //  GENERATE_FILE(HttpStatus.BAD_REQUEST, "Error generating file", "Could not generate file."),
 //  FILE_DOES_NOT_EXIST(HttpStatus.NOT_FOUND, "Error finding file", "Cannot read CSV file or write JSON."),
@@ -24,18 +27,31 @@
 //  TAXONOMY_UPDATED(HttpStatus.OK, "Updated", "Taxonomy updated successfully."),
 //  TAXONOMY_RETRIEVED(HttpStatus.OK, "Retrieved", "Taxonomy retrieved successfully.");
 //  // OK
-//
-//
-//  public final HttpStatus httpStatus;
-//  public final String title;
-//  public final String details;
-//
-//  ResponseMessage(HttpStatus httpStatus, String title, String details) {
-//    this.httpStatus = httpStatus;
-//    this.title = title;
-//    this.details = details;
-//  }
-//
-//}
-//
-//
+
+
+  private final String errorCode;
+  private final String errorMessageKey;
+  private final Response.Status httpStatus;
+
+  AppErrorCodeMessageEnum(
+      String errorCode, String errorMessageKey, Response.Status httpStatus) {
+    this.errorCode = errorCode;
+    this.errorMessageKey = errorMessageKey;
+    this.httpStatus = httpStatus;
+  }
+
+  @Override
+  public String errorCode() {
+    return AppConstant.SERVICE_CODE_APP + "-" + errorCode;
+  }
+
+  @Override
+  public String message(Object... args) {
+    return AppMessageUtil.getMessage(errorMessageKey, args);
+  }
+
+  @Override
+  public Response.Status httpStatus() {
+    return httpStatus;
+  }
+}
