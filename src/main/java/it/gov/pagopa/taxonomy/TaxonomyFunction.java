@@ -16,6 +16,8 @@ import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.TaxonomyObject;
 
 import jakarta.ws.rs.core.MediaType;
+
+import java.io.FileNotFoundException;
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ConnectException;
@@ -90,7 +92,7 @@ public class TaxonomyFunction {
 
   private static void updateTaxonomy(Logger logger) {
     try {
-      logger.info("Download csv ["+csvUrl+"]");
+      logger.info("Download csv [" + csvUrl + "]");
       InputStreamReader inputStreamReader = new InputStreamReader(new URL(csvUrl).openStream(), StandardCharsets.UTF_8);
 
       logger.info("Transform csv to json");
@@ -102,7 +104,7 @@ public class TaxonomyFunction {
               .parse();
       byte[] jsonBytes = objectMapper.writeValueAsBytes(objectList);
 
-      logger.info("Upload json "+csvUrl);
+      logger.info("Upload json " + csvUrl);
       getBlobContainerClient().getBlobClient("taxonomy.json").upload(BinaryData.fromBytes(jsonBytes), true);
 
       /*List<TaxonomyObjectStandard> standardList = objectMapper.convertValue(objectList, new TypeReference<>() {});
@@ -114,34 +116,25 @@ public class TaxonomyFunction {
       //return new AppResponse(ResponseMessage.TAXONOMY_UPDATED);
     } catch (ConnectException connException) {
       throw new AppException(connException, AppErrorCodeMessageEnum.CONNECTION_REFUSED, csvUrl);
-    } catch (MalformedURLException e) {
-      throw new RuntimeException(e);
-    } catch (JsonProcessingException e) {
-      throw new RuntimeException(e);
-    } catch (IOException e) {
-      throw new RuntimeException(e);
+    } catch (FileNotFoundException fileNotFoundException) {
+      throw new AppException(fileNotFoundException, AppErrorCodeMessageEnum.FILE_DOES_NOT_EXIST);
+    } catch (MalformedURLException malformedURLException) {
+      throw new AppException(malformedURLException, AppErrorCodeMessageEnum.MALFORMED_URL);
+    } catch (JsonProcessingException | IllegalStateException parsingException) {
+      throw new AppException(parsingException, AppErrorCodeMessageEnum.CSV_PARSING_ERROR);
+    } catch (IOException ioException) {
+      throw new AppException(ioException, AppErrorCodeMessageEnum.ERROR_READING_WRITING);
+    } catch (Exception e) {
+      if (e.getCause().toString().startsWith("com.opencsv.exceptions.CsvRequiredFieldEmptyException")) {
+        throw new AppException(e, AppErrorCodeMessageEnum.MALFORMED_CSV);
+      }
+      throw new AppException(e, AppErrorCodeMessageEnum.GENERATE_FILE);
     }
-//    catch (FileNotFoundException fnfException) {
-//      logger.error("Failed to read CSV file or failed to write JSON.");
-//      return new AppResponse(ResponseMessage.FILE_DOES_NOT_EXIST);
-//    } catch (MalformedURLException muException) {
-//      logger.error("Malformed URL exception.");
-//
-//      return new AppResponse(ResponseMessage.MALFORMED_URL);
-//    } catch (IOException ioException) {
-//      logger.error("Error occurred while reading/writing.");
-//      return new AppResponse(ResponseMessage.ERROR_READING_WRITING);
+
+
 //    } catch (IllegalStateException isException) {
 //      logger.error("CSV parsing error.");
 //      return new AppResponse(ResponseMessage.CSV_PARSING_ERROR);
-//    } catch(Exception e) {
-//      if(e.getCause().toString().startsWith("com.opencsv.exceptions.CsvRequiredFieldEmptyException")){
-//        logger.error("Malformed CSV.");
-//        return new AppResponse(ResponseMessage.MALFORMED_CSV);
-//      }
-//        logger.error("Error occurred during update.");
-//        return new AppResponse(ResponseMessage.GENERATE_FILE);
-//      }
-  }
 
+  }
 }
