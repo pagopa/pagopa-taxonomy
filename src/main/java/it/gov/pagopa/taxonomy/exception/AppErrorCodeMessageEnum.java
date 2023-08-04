@@ -16,14 +16,7 @@ public enum AppErrorCodeMessageEnum implements AppErrorCodeMessageInterface {
   CSV_PARSING_ERROR("0103", "parsing.error", Response.Status.INTERNAL_SERVER_ERROR),
   ERROR_READING_WRITING("0104", "ioexception", Response.Status.INTERNAL_SERVER_ERROR),
   MALFORMED_CSV("0105", "malformed.csv", Response.Status.INTERNAL_SERVER_ERROR),
-  GENERATE_FILE("0106", "generate.error", Response.Status.INTERNAL_SERVER_ERROR)
-  ;
-//  VERSION_DOES_NOT_EXIST(HttpStatus.BAD_REQUEST, "Error requesting file", "Version or Extension are not supported."),
-//  JSON_PARSING_ERROR(HttpStatus.INTERNAL_SERVER_ERROR, "Parsing Error", "Error when parsing the JSON file, (file could be empty or corrupted, generate a new one)."),
-//  JSON_NOT_FOUND(HttpStatus.NOT_FOUND, "Json not found", "Error finding JSON file."),
-//  // ERRORS
-
-
+  GENERATE_FILE("0106", "generate.error", Response.Status.INTERNAL_SERVER_ERROR);
 
   private final String errorCode;
   private final String errorMessageKey;
