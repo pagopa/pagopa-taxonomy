@@ -25,6 +25,8 @@ import java.net.MalformedURLException;
 import java.net.URL;
 import java.nio.charset.StandardCharsets;
 import java.time.Instant;
+import java.time.ZonedDateTime;
+import java.time.format.DateTimeFormatter;
 import java.util.List;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -35,9 +37,10 @@ public class TaxonomyFunction {
   private static final String csvUrl = System.getenv("CSV_URL");
   private static final String storageConnString = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
   private static final String blobContainerName = System.getenv("BLOB_CONTAINER_NAME");
+  private static final String blobName = System.getenv("JSON_NAME");
   private static final ObjectMapper objectMapper = new ObjectMapper();
-
   private static BlobContainerClient blobContainerClient;
+
   private static BlobContainerClient getBlobContainerClient(){
     if(blobContainerClient==null){
       BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
@@ -73,11 +76,13 @@ public class TaxonomyFunction {
     if(e == null){
       return request.createResponseBuilder(HttpStatus.OK)
               .header("Content-Type", MediaType.APPLICATION_JSON)
+              .header("Date with zone", getDateAndZone())
               .body("{ \"message\" : \"Taxonomy updated successfully\" }")
               .build();
     } else {
       return request.createResponseBuilder(HttpStatus.valueOf(e.getCodeMessage().httpStatus().name()))
               .header("Content-Type", MediaType.APPLICATION_JSON)
+              .header("Date with zone", getDateAndZone())
               .body("{ \"message\" : \"Taxonomy updated failed\", \"error\" : " + e.getCodeMessage().message(e.getArgs()) + " }")
               .build();
     }
@@ -88,6 +93,12 @@ public class TaxonomyFunction {
             .header("Content-Type", MediaType.APPLICATION_JSON)
             .body(message)
             .build();
+  }
+
+  private static String getDateAndZone() {
+    ZonedDateTime currentDateTime = ZonedDateTime.now();
+    DateTimeFormatter formatter = DateTimeFormatter.RFC_1123_DATE_TIME.withZone(currentDateTime.getZone());
+    return currentDateTime.format(formatter);
   }
 
   private static void updateTaxonomy(Logger logger) {
@@ -105,15 +116,8 @@ public class TaxonomyFunction {
       byte[] jsonBytes = objectMapper.writeValueAsBytes(objectList);
 
       logger.info("Upload json " + csvUrl);
-      getBlobContainerClient().getBlobClient("taxonomy.json").upload(BinaryData.fromBytes(jsonBytes), true);
+      getBlobContainerClient().getBlobClient(blobName).upload(BinaryData.fromBytes(jsonBytes), true);
 
-      /*List<TaxonomyObjectStandard> standardList = objectMapper.convertValue(objectList, new TypeReference<>() {});
-      List<TaxonomyObjectDatalake> datalakeList = objectMapper.convertValue(objectList, new TypeReference<>() {});
-      String standardJsonString = objectMapper.writeValueAsString(standardList);
-      String datalakeJsonString = objectMapper.writeValueAsString(datalakeList);
-      Files.write(Paths.get(properties.getProperty("STANDARD_JSON_PATH")), standardJsonString.getBytes());
-      Files.write(Paths.get(properties.getProperty("DATALAKE_JSON_PATH")), datalakeJsonString.getBytes());*/
-      //return new AppResponse(ResponseMessage.TAXONOMY_UPDATED);
     } catch (ConnectException connException) {
       throw new AppException(connException, AppErrorCodeMessageEnum.CONNECTION_REFUSED, csvUrl);
     } catch (FileNotFoundException fileNotFoundException) {
@@ -130,11 +134,5 @@ public class TaxonomyFunction {
       }
       throw new AppException(e, AppErrorCodeMessageEnum.GENERATE_FILE);
     }
-
-
-//    } catch (IllegalStateException isException) {
-//      logger.error("CSV parsing error.");
-//      return new AppResponse(ResponseMessage.CSV_PARSING_ERROR);
-
   }
 }
