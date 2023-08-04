@@ -14,8 +14,8 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.TaxonomyObject;
-
 import jakarta.ws.rs.core.MediaType;
+
 import java.io.IOException;
 import java.io.InputStreamReader;
 import java.net.ConnectException;
@@ -37,7 +37,7 @@ public class TaxonomyFunction {
 
   private static BlobContainerClient blobContainerClient;
   private static BlobContainerClient getBlobContainerClient(){
-    if(blobContainerClient==null){
+    if(blobContainerClient == null){
       BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
       blobContainerClient = blobServiceClient.createBlobContainerIfNotExists(blobContainerName);
     }
@@ -76,7 +76,7 @@ public class TaxonomyFunction {
     } else {
       return request.createResponseBuilder(HttpStatus.valueOf(e.getCodeMessage().httpStatus().name()))
               .header("Content-Type", MediaType.APPLICATION_JSON)
-              .body("{ \"message\" : \"Taxonomy updated failed\", \"error\" : " + e.getCodeMessage().message(e.getArgs()) + " }")
+              .body("{ \"message\" : \"Taxonomy update failed\", \"error\" : " + e.getCodeMessage().message(e.getArgs()) + " }")
               .build();
     }
   }
