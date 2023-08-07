@@ -13,11 +13,16 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
+import it.gov.pagopa.taxonomy.model.json.StandardTaxonomy;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
-import jakarta.ws.rs.core.MediaType;
+import it.gov.pagopa.taxonomy.util.AppConstant;
+import it.gov.pagopa.taxonomy.util.AppUtil;
+import org.modelmapper.ModelMapper;
+import org.modelmapper.TypeToken;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -62,45 +67,40 @@ public class TaxonomyGetFunction {
         try {
             TaxonomyJson taxonomyJson = getTaxonomy(logger);
             Map<String, String> map = new LinkedHashMap<>();
-            map.put("uuid", taxonomyJson.getUuid());
-            map.put("date", taxonomyJson.getCreated().toString());
-            return writeResponseWithHeaders(request,
+            map.put(AppConstant.RESPONSE_HEADER_UUID, taxonomyJson.getUuid());
+            map.put(AppConstant.RESPONSE_HEADER_CREATED, taxonomyJson.getCreated().toString());
+
+            ModelMapper modelMapper = new ModelMapper();
+            List<StandardTaxonomy> standardTaxonomyList = modelMapper.map(taxonomyJson.getTaxonomyList(), new TypeToken<List<StandardTaxonomy>>(){}.getType());
+            String payload = AppUtil.getPayload(getObjectMapper(), standardTaxonomyList);
+            return AppUtil.writeResponseWithHeaders(request,
                     HttpStatus.OK,
-                    taxonomyJson.getTaxonomyList(),
+                    payload,
                     map);
 
         } catch (AppException e) {
             logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now(), e);
-            return writeResponse(request,
+            String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
+                    .message("Taxonomy retrieval failed")
+                    .error(e.getCodeMessage().message(e.getArgs()))
+                    .build());
+            return AppUtil.writeResponse(request,
                     HttpStatus.valueOf(e.getCodeMessage().httpStatus().name()),
-                    ErrorMessage.builder()
-                            .message("Taxonomy retrieval failed")
-                            .error(e.getCodeMessage().message(e.getArgs()))
-                            .build());
+                    payload);
 
         } catch (Exception e) {
             logger.log(Level.SEVERE, "[ALERT] Generic error at " + Instant.now(), e);
             AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
-            return writeResponse(request,
+            String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
+                    .message("Taxonomy retrieval failed")
+                    .error(appException.getCodeMessage().message(appException.getArgs()))
+                    .build());
+            return AppUtil.writeResponse(request,
                     HttpStatus.valueOf(appException.getCodeMessage().httpStatus().name()),
-                    ErrorMessage.builder()
-                            .message("Taxonomy retrieval failed")
-                            .error(appException.getCodeMessage().message(appException.getArgs()))
-                            .build());
+                    payload);
         }
     }
 
-    private static <T> HttpResponseMessage writeResponseWithHeaders(HttpRequestMessage<Optional<String>> request, HttpStatus httpStatus, T payload, Map<String, String> headers ) {
-        HttpResponseMessage.Builder responseBuilder = request.createResponseBuilder(httpStatus);
-        responseBuilder.header("Content-Type", MediaType.APPLICATION_JSON);
-        headers.forEach(responseBuilder::header);
-        responseBuilder.body(payload);
-        return responseBuilder.build();
-    }
-
-    private static <T> HttpResponseMessage writeResponse(HttpRequestMessage<Optional<String>> request, HttpStatus httpStatus, T payload) {
-        return writeResponseWithHeaders(request, httpStatus, payload, new LinkedHashMap<>());
-    }
 
     private static TaxonomyJson getTaxonomy(Logger logger) {
         try {
@@ -110,15 +110,6 @@ public class TaxonomyGetFunction {
 
             logger.info("Versioning the json");
             return getObjectMapper().readValue(content, TaxonomyJson.class);
-
-            /*ModelMapper modelMapper = new ModelMapper();
-            modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
-
-            List<Taxonomy> taxonomyList = taxonomyJson.getTaxonomyList();
-            return taxonomyList.stream()
-                    .map(taxonomy -> modelMapper.map(taxonomy, StandardTaxonomy.class))
-                    .collect(Collectors.toList());*/
-
         } catch (JsonProcessingException parsingException) {
             throw new AppException(parsingException, AppErrorCodeMessageEnum.JSON_PARSING_ERROR);
         }

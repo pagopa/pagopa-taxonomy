@@ -19,6 +19,7 @@ import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
 import it.gov.pagopa.taxonomy.model.function.Message;
 import it.gov.pagopa.taxonomy.model.json.Taxonomy;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
+import it.gov.pagopa.taxonomy.util.AppUtil;
 import jakarta.ws.rs.core.MediaType;
 import org.modelmapper.ModelMapper;
 
@@ -76,36 +77,35 @@ public class TaxonomyUpdateFunction {
 
     try {
       updateTaxonomy(logger);
-      return writeResponse(request,
+      String payload = AppUtil.getPayload(getObjectMapper(), Message.builder().message("Taxonomy updated successfully").build());
+      return AppUtil.writeResponse(request,
               HttpStatus.OK,
-              Message.builder().message("Taxonomy updated successfully").build());
+              payload
+              );
 
     } catch (AppException e) {
       logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now(), e);
-      return writeResponse(request,
+      String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
+              .message("Taxonomy update failed")
+              .error(e.getCodeMessage().message(e.getArgs()))
+              .build());
+      return AppUtil.writeResponse(request,
               HttpStatus.valueOf(e.getCodeMessage().httpStatus().name()),
-              ErrorMessage.builder()
-                      .message("Taxonomy update failed")
-                      .error(e.getCodeMessage().message(e.getArgs()))
-                      .build());
+              payload
+              );
 
     } catch (Exception e) {
       logger.log(Level.SEVERE, "[ALERT] Generic error at " + Instant.now(), e);
       AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
-      return writeResponse(request,
+      String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
+              .message("Taxonomy update failed")
+              .error(appException.getCodeMessage().message(appException.getArgs()))
+              .build());
+      return AppUtil.writeResponse(request,
               HttpStatus.valueOf(appException.getCodeMessage().httpStatus().name()),
-              ErrorMessage.builder()
-                      .message("Taxonomy update failed")
-                      .error(appException.getCodeMessage().message(appException.getArgs()))
-                      .build());
+              payload
+              );
     }
-  }
-
-  private static <T> HttpResponseMessage writeResponse(HttpRequestMessage<Optional<String>> request, HttpStatus httpStatus, T payload) {
-    return request.createResponseBuilder(httpStatus)
-            .header("Content-Type", MediaType.APPLICATION_JSON)
-            .body(payload)
-            .build();
   }
 
   private static void updateTaxonomy(Logger logger) {
