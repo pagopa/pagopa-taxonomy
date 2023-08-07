@@ -3,7 +3,6 @@ package it.gov.pagopa.taxonomy.model.json;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import com.opencsv.bean.CsvBindByName;
 import lombok.*;
 
 
@@ -15,7 +14,7 @@ import lombok.*;
 @JsonInclude(Include.NON_NULL)
 public class Taxonomy {
 
-  @JsonProperty(value="creditor_entity_type_code")
+  @JsonProperty(value="CODICE TIPO ENTE CREDITORE")
   private String creditorEntityTypeCode;
 
   @JsonProperty(value="TIPO ENTE CREDITORE")

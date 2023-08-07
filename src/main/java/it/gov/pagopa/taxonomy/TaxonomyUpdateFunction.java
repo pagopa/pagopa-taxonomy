@@ -37,7 +37,7 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
-public class TaxonomyFunction {
+public class TaxonomyUpdateFunction {
 
   private static final String csvUrl = System.getenv("CSV_URL");
   private static final String storageConnString = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
@@ -49,7 +49,7 @@ public class TaxonomyFunction {
   private static BlobContainerClient blobContainerClient;
 
   private static BlobContainerClient getBlobContainerClient(){
-    if(blobContainerClient==null){
+    if(blobContainerClient == null){
       BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
       blobContainerClient = blobServiceClient.createBlobContainerIfNotExists(blobContainerName);
     }
@@ -57,7 +57,7 @@ public class TaxonomyFunction {
   }
 
   private static ObjectMapper getObjectMapper(){
-    if(objectMapper==null){
+    if(objectMapper == null){
       objectMapper = new ObjectMapper();
       objectMapper.registerModule(new JavaTimeModule());
     }
@@ -73,32 +73,35 @@ public class TaxonomyFunction {
           authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
       final ExecutionContext context) {
     Logger logger = context.getLogger();
+
     try {
       updateTaxonomy(logger);
       return writeResponse(request,
               HttpStatus.OK,
               Message.builder().message("Taxonomy updated successfully").build());
+
     } catch (AppException e) {
       logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now(), e);
       return writeResponse(request,
               HttpStatus.valueOf(e.getCodeMessage().httpStatus().name()),
               ErrorMessage.builder()
-                      .message("Taxonomy updated failed")
+                      .message("Taxonomy update failed")
                       .error(e.getCodeMessage().message(e.getArgs()))
                       .build());
+
     } catch (Exception e) {
       logger.log(Level.SEVERE, "[ALERT] Generic error at " + Instant.now(), e);
       AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
       return writeResponse(request,
               HttpStatus.valueOf(appException.getCodeMessage().httpStatus().name()),
               ErrorMessage.builder()
-                      .message("Taxonomy updated failed")
+                      .message("Taxonomy update failed")
                       .error(appException.getCodeMessage().message(appException.getArgs()))
                       .build());
     }
   }
 
-  private static<T> HttpResponseMessage writeResponse(HttpRequestMessage<Optional<String>> request, HttpStatus httpStatus, T payload){
+  private static <T> HttpResponseMessage writeResponse(HttpRequestMessage<Optional<String>> request, HttpStatus httpStatus, T payload) {
     return request.createResponseBuilder(httpStatus)
             .header("Content-Type", MediaType.APPLICATION_JSON)
             .body(payload)
@@ -124,15 +127,14 @@ public class TaxonomyFunction {
       TaxonomyJson taxonomyJson = TaxonomyJson.builder()
               .uuid(id)
               .created(now)
-              .taxonomyList(taxonomyCsvList.stream().map(tassonomyCsv ->
-                modelMapper.map(tassonomyCsv, Taxonomy.class)
+              .taxonomyList(taxonomyCsvList.stream().map(taxonomyCsv ->
+                modelMapper.map(taxonomyCsv, Taxonomy.class)
               ).collect(Collectors.toList()))
               .build();
 
-
       byte[] jsonBytes = getObjectMapper().writeValueAsBytes(taxonomyJson);
 
-      logger.info("Upload json id=["+id+"] created at : ["+now+"]");
+      logger.info("Upload json id=[" + id + "] created at : [" + now + "]");
       getBlobContainerClient().getBlobClient(blobName).upload(BinaryData.fromBytes(jsonBytes), true);
 
     } catch (ConnectException connException) {
