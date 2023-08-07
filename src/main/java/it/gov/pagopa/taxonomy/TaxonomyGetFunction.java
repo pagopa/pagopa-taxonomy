@@ -13,16 +13,12 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
-import it.gov.pagopa.taxonomy.model.json.StandardTaxonomy;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import it.gov.pagopa.taxonomy.util.AppConstant;
 import it.gov.pagopa.taxonomy.util.AppUtil;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.TypeToken;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -70,9 +66,7 @@ public class TaxonomyGetFunction {
             map.put(AppConstant.RESPONSE_HEADER_UUID, taxonomyJson.getUuid());
             map.put(AppConstant.RESPONSE_HEADER_CREATED, taxonomyJson.getCreated().toString());
 
-            ModelMapper modelMapper = new ModelMapper();
-            List<StandardTaxonomy> standardTaxonomyList = modelMapper.map(taxonomyJson.getTaxonomyList(), new TypeToken<List<StandardTaxonomy>>(){}.getType());
-            String payload = AppUtil.getPayload(getObjectMapper(), standardTaxonomyList);
+            String payload = AppUtil.getPayload(getObjectMapper(), taxonomyJson.getTaxonomyList());
             return AppUtil.writeResponseWithHeaders(request,
                     HttpStatus.OK,
                     payload,

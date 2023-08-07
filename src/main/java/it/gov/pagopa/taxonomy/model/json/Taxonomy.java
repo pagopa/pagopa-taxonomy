@@ -20,7 +20,7 @@ public class Taxonomy {
   @JsonProperty(value="TIPO ENTE CREDITORE")
   private String creditorEntityType;
 
-  @JsonProperty(value="PROGRESSIVO MACRO AREA PER ENTE CREDITORE")
+  @JsonProperty(value="Progressivo Macro Area per Ente Creditore")
   private String creditorEntityMacroAreaProgressive;
 
   @JsonProperty(value="NOME MACRO AREA")
@@ -35,7 +35,7 @@ public class Taxonomy {
   @JsonProperty(value="TIPO SERVIZIO")
   private String serviceType;
 
-  @JsonProperty(value="MOTIVO GIURIDICO DELLA RISCOSSIONE")
+  @JsonProperty(value="Motivo Giuridico della riscossione")
   private String legalBasisOfCollection;
 
   @JsonProperty(value="DESCRIZIONE TIPO SERVIZIO")
@@ -53,9 +53,9 @@ public class Taxonomy {
   @JsonProperty(value="DATA FINE VALIDITA")
   private String validityEndDate;
 
-  @JsonProperty(value="COMBINAZIONE TOPIC E SUBTOPIC")
+  /*@JsonProperty(value="COMBINAZIONE TOPIC E SUBTOPIC")
   private String topicSubtopicCombination;
 
   @JsonProperty(value="FLAG NUOVA COMBINAZIONE")
-  private String newCombinationFlag;
+  private String newCombinationFlag;*/
 }
