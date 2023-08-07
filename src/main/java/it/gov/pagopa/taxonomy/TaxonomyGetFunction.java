@@ -13,20 +13,15 @@ import com.microsoft.azure.functions.annotation.HttpTrigger;
 import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
-import it.gov.pagopa.taxonomy.model.json.StandardTaxonomy;
-import it.gov.pagopa.taxonomy.model.json.Taxonomy;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import jakarta.ws.rs.core.MediaType;
-import org.modelmapper.ModelMapper;
-import org.modelmapper.convention.MatchingStrategies;
 
-import java.io.*;
 import java.time.Instant;
-import java.util.List;
+import java.util.LinkedHashMap;
+import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class TaxonomyGetFunction {
 
@@ -59,16 +54,20 @@ public class TaxonomyGetFunction {
             @HttpTrigger(
                     name = "GetTrigger",
                     methods = {HttpMethod.GET},
-                    route = "taxonomy.json",
+                    route = "taxonomy",
                     authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) throws JsonProcessingException {
         Logger logger = context.getLogger();
 
         try {
-            List<StandardTaxonomy> standardTaxonomyList = getTaxonomy(logger);
-            return writeResponse(request,
+            TaxonomyJson taxonomyJson = getTaxonomy(logger);
+            Map<String, String> map = new LinkedHashMap<>();
+            map.put("uuid", taxonomyJson.getUuid());
+            map.put("date", taxonomyJson.getCreated().toString());
+            return writeResponseWithHeaders(request,
                     HttpStatus.OK,
-                    standardTaxonomyList);
+                    taxonomyJson.getTaxonomyList(),
+                    map);
 
         } catch (AppException e) {
             logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now(), e);
@@ -91,31 +90,34 @@ public class TaxonomyGetFunction {
         }
     }
 
-    private static <T> HttpResponseMessage writeResponse(HttpRequestMessage<Optional<String>> request, HttpStatus httpStatus, T payload) throws JsonProcessingException {
-        String response = getObjectMapper().writeValueAsString(payload);
-        return request.createResponseBuilder(httpStatus)
-                .header("Content-Type", MediaType.APPLICATION_JSON)
-                .body(response)
-                .build();
+    private static <T> HttpResponseMessage writeResponseWithHeaders(HttpRequestMessage<Optional<String>> request, HttpStatus httpStatus, T payload, Map<String, String> headers ) {
+        HttpResponseMessage.Builder responseBuilder = request.createResponseBuilder(httpStatus);
+        responseBuilder.header("Content-Type", MediaType.APPLICATION_JSON);
+        headers.forEach(responseBuilder::header);
+        responseBuilder.body(payload);
+        return responseBuilder.build();
     }
 
-    private static List<StandardTaxonomy> getTaxonomy(Logger logger) {
+    private static <T> HttpResponseMessage writeResponse(HttpRequestMessage<Optional<String>> request, HttpStatus httpStatus, T payload) {
+        return writeResponseWithHeaders(request, httpStatus, payload, new LinkedHashMap<>());
+    }
+
+    private static TaxonomyJson getTaxonomy(Logger logger) {
         try {
             Instant now = Instant.now();
             logger.info("Retrieving standard json from the blob storage at: [" + now + "]");
-            OutputStream data = new ByteArrayOutputStream();
-            getBlobContainerClient().getBlobClient(blobName).downloadStream(data);
+            String content = getBlobContainerClient().getBlobClient(blobName).downloadContent().toString();
 
             logger.info("Versioning the json");
-            TaxonomyJson taxonomyJson = getObjectMapper().readValue(data.toString(), TaxonomyJson.class);
+            return getObjectMapper().readValue(content, TaxonomyJson.class);
 
-            ModelMapper modelMapper = new ModelMapper();
+            /*ModelMapper modelMapper = new ModelMapper();
             modelMapper.getConfiguration().setMatchingStrategy(MatchingStrategies.STRICT);
 
             List<Taxonomy> taxonomyList = taxonomyJson.getTaxonomyList();
             return taxonomyList.stream()
                     .map(taxonomy -> modelMapper.map(taxonomy, StandardTaxonomy.class))
-                    .collect(Collectors.toList());
+                    .collect(Collectors.toList());*/
 
         } catch (JsonProcessingException parsingException) {
             throw new AppException(parsingException, AppErrorCodeMessageEnum.JSON_PARSING_ERROR);
