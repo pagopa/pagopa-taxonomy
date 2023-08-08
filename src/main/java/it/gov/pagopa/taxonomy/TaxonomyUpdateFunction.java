@@ -20,7 +20,6 @@ import it.gov.pagopa.taxonomy.model.function.Message;
 import it.gov.pagopa.taxonomy.model.json.Taxonomy;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import it.gov.pagopa.taxonomy.util.AppUtil;
-import jakarta.ws.rs.core.MediaType;
 import org.modelmapper.ModelMapper;
 
 import java.io.FileNotFoundException;
@@ -47,6 +46,7 @@ public class TaxonomyUpdateFunction {
 
   private static ObjectMapper objectMapper = null;
 
+  private static ModelMapper modelMapper = null;
   private static BlobContainerClient blobContainerClient;
 
   private static BlobContainerClient getBlobContainerClient(){
@@ -63,6 +63,13 @@ public class TaxonomyUpdateFunction {
       objectMapper.registerModule(new JavaTimeModule());
     }
     return objectMapper;
+  }
+
+  private static ModelMapper getModelMapper(){
+    if(modelMapper == null){
+      modelMapper = new ModelMapper();
+    }
+    return modelMapper;
   }
 
   @FunctionName("UpdateTrigger")
@@ -121,14 +128,13 @@ public class TaxonomyUpdateFunction {
               .build()
               .parse();
 
-      ModelMapper modelMapper = new ModelMapper();
       Instant now = Instant.now();
       String id = UUID.randomUUID().toString();
       TaxonomyJson taxonomyJson = TaxonomyJson.builder()
               .uuid(id)
               .created(now)
               .taxonomyList(taxonomyCsvList.stream().map(taxonomyCsv ->
-                modelMapper.map(taxonomyCsv, Taxonomy.class)
+                getModelMapper().map(taxonomyCsv, Taxonomy.class)
               ).collect(Collectors.toList()))
               .build();
 
