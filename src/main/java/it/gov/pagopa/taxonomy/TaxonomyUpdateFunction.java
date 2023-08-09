@@ -93,6 +93,7 @@ public class TaxonomyUpdateFunction {
     try {
       updateTaxonomy(logger);
       String payload = AppUtil.getPayload(getObjectMapper(), Message.builder().message("Taxonomy updated successfully").build());
+      logger.info("Done fine processo");
       return AppUtil.writeResponse(request,
               HttpStatus.OK,
               payload
@@ -125,7 +126,7 @@ public class TaxonomyUpdateFunction {
 
   private static void updateTaxonomy(Logger logger) {
     try {
-      logger.info("Download csv from blob");
+      logger.info("Download csv file ["+csvName+"] from blob at ["+Instant.now().toString()+"]");
 
       InputStreamReader inputStreamReader = new InputStreamReader(getBlobContainerClientInput().getBlobClient(csvName).downloadContent().toStream());
 
