@@ -1,100 +1,32 @@
-# Template for Java Spring Microservice project
+# pagoPA Functions taxonomy
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-taxonomy&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa_pagopa-taxonomy)
-[![Integration Tests](https://github.com/pagopa/<TODO>/actions/workflows/integration_test.yml/badge.svg?branch=main)](https://github.com/pagopa/<TODO>/actions/workflows/integration_test.yml)
+Java fdr-re-to-datastore Azure Function.
+The function aims to dump RE sent via Azure Event Hub to a CosmosDB, with a TTL of 120 days, and to an Azure Table Storage with a TTL of 10 years.
 
-## Description
-
-An application for managing the taxonomy of payments. Can generate version-specific JSONs from a csv file on a Google Drive.
-
----
-
-## Api Documentation 📖
-
-See the [OpenApi 3 here.](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-taxonomy/main/openapi/openapi.json)
-
----
-
-## Technology Stack
-
-- Java 11
-- spring-boot-devtools
-- spring-boot-configuration-processor
-- caffeine
-- springdoc-openapi-ui
-- h2
-- modelmapper
-- mapstruct
-- lombok
-- junit
-- spring-boot-maven-plugin
-- mapstruct-processor
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-fdr-re-to-datastore&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa_pagopa-fdr-re-to-datastore)
 
 
 ---
 
-## Start Project Locally 🚀
+## Run locally with Docker
+`docker build -t pagopa-functions-taxonomy .`
 
-### Prerequisites
+`docker run -it -rm -p 8999:80 pagopa-functions-taxonomy`
 
-- docker
+### Test
+`curl http://localhost:8999/example`
 
-### Run docker container
+## Run locally with Maven
 
-from `./docker` directory
+`mvn clean package`
 
-`sh ./run_docker.sh dev`
+`mvn azure-functions:run`
 
-ℹ️ Note: for PagoPa ACR is required the login `az acr login -n <acr-name>`
-
----
-
-## Develop Locally 💻
-
-### Prerequisites
-
-- git
-- maven
-- jdk-11
-
-### Run the project
-
-Start the springboot application with this command:
-
-`mvn spring-boot:run -Dspring-boot.run.profiles=local`
-
-### Spring Profiles
-
-- **local**: to develop locally.
-- _default (no profile set)_: The application gets the properties from the environment (for Azure).
-
-### Testing 🧪
-
-#### Unit testing
-
-To run the **Junit** tests:
-
-`mvn clean verify`
-
-#### Integration testing
-
-From `./integration-test/src`
-
-1. `yarn install`
-2. `yarn test`
-
-#### Performance testing
-
-install [k6](https://k6.io/) and then from `./performance-test/src`
-
-1. `k6 run --env VARS=local.environment.json --env TEST_TYPE=./test-types/load.json main_scenario.js`
+### Test
+`curl http://localhost:7071/example`
 
 ---
 
-## Contributors 👥
-
-Made with ❤️ by PagoPa S.p.A.
-
-### Mainteiners
-
-See `CODEOWNERS` file
+### Per dev
+`docker run -p 10000:10000 -p 10001:10001 -p 10002:10002 mcr.microsoft.com/azure-storage/azurite`
+`./mvnw clean package && ./mvnw azure-functions:run`

@@ -1,0 +1,73 @@
+{
+	"info": {
+		"_postman_id": "7807f410-403e-40ed-8c70-7e4c04df054e",
+		"name": "Taxonomy",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "2040508",
+		"_collection_link": "https://speeding-station-482612.postman.co/workspace/Nodo-doc~ec880f84-0a42-4ca9-bbd1-454d00bbe20c/collection/2040508-7807f410-403e-40ed-8c70-7e4c04df054e?action=share&creator=2040508&source=collection_link"
+	},
+	"item": [
+		{
+			"name": "generate",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Ocp-Apim-Subscription-Key",
+						"value": "0b82eb24a5ce441d9a65e3d8b62a2574",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://api.dev.platform.pagopa.it/taxonomy/service/v1/generate",
+					"protocol": "https",
+					"host": [
+						"api",
+						"dev",
+						"platform",
+						"pagopa",
+						"it"
+					],
+					"path": [
+						"taxonomy",
+						"service",
+						"v1",
+						"generate"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "taxonomy",
+			"request": {
+				"method": "GET",
+				"header": [
+					{
+						"key": "Ocp-Apim-Subscription-Key",
+						"value": "0b82eb24a5ce441d9a65e3d8b62a2574",
+						"type": "text"
+					}
+				],
+				"url": {
+					"raw": "https://api.dev.platform.pagopa.it/taxonomy/service/v1/taxonomy",
+					"protocol": "https",
+					"host": [
+						"api",
+						"dev",
+						"platform",
+						"pagopa",
+						"it"
+					],
+					"path": [
+						"taxonomy",
+						"service",
+						"v1",
+						"taxonomy"
+					]
+				}
+			},
+			"response": []
+		}
+	]
+}
