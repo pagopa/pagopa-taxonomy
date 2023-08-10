@@ -27,19 +27,24 @@ import java.util.logging.Logger;
 public class TaxonomyGetFunction {
 
     private static final String storageConnString = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
-    private static final String blobContainerName = System.getenv("BLOB_CONTAINER_NAME");
-    private static final String blobName = System.getenv("JSON_NAME");
-
+    private static final String blobContainerNameOutput = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
+    private static final String jsonName = System.getenv("JSON_NAME");
     private static ObjectMapper objectMapper = null;
 
-    private static BlobContainerClient blobContainerClient;
-
-    private static BlobContainerClient getBlobContainerClient(){
-        if(blobContainerClient == null){
-            BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
-            blobContainerClient = blobServiceClient.createBlobContainerIfNotExists(blobContainerName);
+    private static BlobContainerClient blobContainerClientOutput;
+    private static BlobServiceClient blobServiceClient;
+    private static BlobServiceClient getBlobServiceClient(){
+        if(blobServiceClient == null){
+            blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
         }
-        return blobContainerClient;
+        return blobServiceClient;
+    }
+
+    private static BlobContainerClient getBlobContainerClientOutput(){
+        if(blobContainerClientOutput == null){
+            blobContainerClientOutput = getBlobServiceClient().createBlobContainerIfNotExists(blobContainerNameOutput);
+        }
+        return blobContainerClientOutput;
     }
 
     private static ObjectMapper getObjectMapper(){
@@ -57,7 +62,7 @@ public class TaxonomyGetFunction {
                     methods = {HttpMethod.GET},
                     route = "taxonomy",
                     authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
-            final ExecutionContext context) throws JsonProcessingException {
+            final ExecutionContext context) {
         Logger logger = context.getLogger();
 
         try {
@@ -67,6 +72,7 @@ public class TaxonomyGetFunction {
             map.put(AppConstant.RESPONSE_HEADER_CREATED, taxonomyJson.getCreated().toString());
 
             String payload = AppUtil.getPayload(getObjectMapper(), taxonomyJson.getTaxonomyList());
+            logger.info("Taxonomy retrieved successfully");
             return AppUtil.writeResponseWithHeaders(request,
                     HttpStatus.OK,
                     payload,
@@ -100,11 +106,12 @@ public class TaxonomyGetFunction {
         try {
             Instant now = Instant.now();
             logger.info("Retrieving standard json from the blob storage at: [" + now + "]");
-            String content = getBlobContainerClient().getBlobClient(blobName).downloadContent().toString();
-
-            logger.info("Versioning the json");
-            return getObjectMapper().readValue(content, TaxonomyJson.class);
+            String content = getBlobContainerClientOutput().getBlobClient(jsonName).downloadContent().toString();
+            TaxonomyJson taxonomyJson = getObjectMapper().readValue(content, TaxonomyJson.class);
+            logger.info("Versioning json id = [" + taxonomyJson.getUuid() + "] to the standard version");
+            return taxonomyJson;
         } catch (JsonProcessingException parsingException) {
+            logger.info("An AppException has occurred");
             throw new AppException(parsingException, AppErrorCodeMessageEnum.JSON_PARSING_ERROR);
         }
     }

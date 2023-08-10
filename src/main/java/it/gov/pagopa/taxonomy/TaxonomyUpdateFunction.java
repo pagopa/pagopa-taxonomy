@@ -21,14 +21,7 @@ import it.gov.pagopa.taxonomy.model.json.Taxonomy;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import it.gov.pagopa.taxonomy.util.AppUtil;
 import org.modelmapper.ModelMapper;
-
-import java.io.FileNotFoundException;
-import java.io.IOException;
 import java.io.InputStreamReader;
-import java.net.ConnectException;
-import java.net.MalformedURLException;
-import java.net.URL;
-import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -39,23 +32,38 @@ import java.util.stream.Collectors;
 
 public class TaxonomyUpdateFunction {
 
-  private static final String csvUrl = System.getenv("CSV_URL");
   private static final String storageConnString = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
-  private static final String blobContainerName = System.getenv("BLOB_CONTAINER_NAME");
-  private static final String blobName = System.getenv("JSON_NAME");
-
+  private static final String blobContainerNameInput = System.getenv("BLOB_CONTAINER_NAME_INPUT");
+  private static final String blobContainerNameOuput = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
+  private static final String jsonName = System.getenv("JSON_NAME");
+  private static final String csvName = System.getenv("CSV_NAME");
   private static ObjectMapper objectMapper = null;
 
   private static ModelMapper modelMapper = null;
-  private static BlobContainerClient blobContainerClient;
-
-  private static BlobContainerClient getBlobContainerClient(){
-    if(blobContainerClient == null){
-      BlobServiceClient blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
-      blobContainerClient = blobServiceClient.createBlobContainerIfNotExists(blobContainerName);
+  private static BlobContainerClient blobContainerClientInput;
+  private static BlobContainerClient blobContainerClientOutput;
+  private static BlobServiceClient blobServiceClient;
+  private static BlobServiceClient getBlobServiceClient(){
+    if(blobServiceClient == null){
+      blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
     }
-    return blobContainerClient;
+    return blobServiceClient;
   }
+
+  private static BlobContainerClient getBlobContainerClientInput(){
+    if(blobContainerClientInput == null){
+      blobContainerClientInput = getBlobServiceClient().createBlobContainerIfNotExists(blobContainerNameInput);
+    }
+    return blobContainerClientInput;
+  }
+
+  private static BlobContainerClient getBlobContainerClientOutput(){
+    if(blobContainerClientOutput == null){
+      blobContainerClientOutput = getBlobServiceClient().createBlobContainerIfNotExists(blobContainerNameOuput);
+    }
+    return blobContainerClientOutput;
+  }
+
 
   private static ObjectMapper getObjectMapper(){
     if(objectMapper == null){
@@ -85,6 +93,7 @@ public class TaxonomyUpdateFunction {
     try {
       updateTaxonomy(logger);
       String payload = AppUtil.getPayload(getObjectMapper(), Message.builder().message("Taxonomy updated successfully").build());
+      logger.info("Taxonomy updated successfully");
       return AppUtil.writeResponse(request,
               HttpStatus.OK,
               payload
@@ -117,10 +126,11 @@ public class TaxonomyUpdateFunction {
 
   private static void updateTaxonomy(Logger logger) {
     try {
-      logger.info("Download csv [" + csvUrl + "]");
-      InputStreamReader inputStreamReader = new InputStreamReader(new URL(csvUrl).openStream(), StandardCharsets.UTF_8);
+      logger.info("Download csv file [" + csvName + "] from blob at [" + Instant.now().toString() + "]");
 
-      logger.info("Transform csv to json");
+      InputStreamReader inputStreamReader = new InputStreamReader(getBlobContainerClientInput().getBlobClient(csvName).downloadContent().toStream());
+
+      logger.info("Converting [" + csvName + "] into [" + jsonName + "]");
       List<TaxonomyCsv> taxonomyCsvList = new CsvToBeanBuilder<TaxonomyCsv>(inputStreamReader)
               .withSeparator(';')
               .withSkipLines(0)
@@ -140,19 +150,12 @@ public class TaxonomyUpdateFunction {
 
       byte[] jsonBytes = getObjectMapper().writeValueAsBytes(taxonomyJson);
 
-      logger.info("Upload json id=[" + id + "] created at : [" + now + "]");
-      getBlobContainerClient().getBlobClient(blobName).upload(BinaryData.fromBytes(jsonBytes), true);
+      logger.info("Uploading json id = [" + id + "] created at: [" + now + "]");
+      getBlobContainerClientOutput().getBlobClient(jsonName).upload(BinaryData.fromBytes(jsonBytes), true);
 
-    } catch (ConnectException connException) {
-      throw new AppException(connException, AppErrorCodeMessageEnum.CONNECTION_REFUSED, csvUrl);
-    } catch (FileNotFoundException fileNotFoundException) {
-      throw new AppException(fileNotFoundException, AppErrorCodeMessageEnum.FILE_DOES_NOT_EXIST);
-    } catch (MalformedURLException malformedURLException) {
-      throw new AppException(malformedURLException, AppErrorCodeMessageEnum.MALFORMED_URL);
     } catch (JsonProcessingException | IllegalStateException parsingException) {
+      logger.info("An AppException has occurred");
       throw new AppException(parsingException, AppErrorCodeMessageEnum.CSV_PARSING_ERROR);
-    } catch (IOException ioException) {
-      throw new AppException(ioException, AppErrorCodeMessageEnum.ERROR_READING_WRITING);
     }
   }
 }
