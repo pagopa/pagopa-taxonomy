@@ -17,9 +17,9 @@ public class Info {
 	 * This function will be invoked when a Http Trigger occurs
 	 * @return
 	 */
-	@FunctionName("Info")
+	@FunctionName("FnHttpInfo")
 	public HttpResponseMessage run (
-			@HttpTrigger(name = "InfoTrigger",
+			@HttpTrigger(name = "FnHttpInfoTrigger",
 			methods = {HttpMethod.GET},
 			route = "info",
 			authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,

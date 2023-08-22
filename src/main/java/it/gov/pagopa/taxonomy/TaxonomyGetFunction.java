@@ -16,6 +16,7 @@ import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import it.gov.pagopa.taxonomy.util.AppConstant;
 import it.gov.pagopa.taxonomy.util.AppUtil;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -33,6 +34,7 @@ public class TaxonomyGetFunction {
 
     private static BlobContainerClient blobContainerClientOutput;
     private static BlobServiceClient blobServiceClient;
+
     private static BlobServiceClient getBlobServiceClient(){
         if(blobServiceClient == null){
             blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
@@ -55,10 +57,10 @@ public class TaxonomyGetFunction {
         return objectMapper;
     }
 
-    @FunctionName("GetTrigger")
+    @FunctionName("FnHttpGet")
     public HttpResponseMessage getTaxonomy(
             @HttpTrigger(
-                    name = "GetTrigger",
+                    name = "FnHttpGetTrigger",
                     methods = {HttpMethod.GET},
                     route = "taxonomy",
                     authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
@@ -79,7 +81,7 @@ public class TaxonomyGetFunction {
                     map);
 
         } catch (AppException e) {
-            logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now(), e);
+            logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
                     .message("Taxonomy retrieval failed")
                     .error(e.getCodeMessage().message(e.getArgs()))
@@ -89,7 +91,7 @@ public class TaxonomyGetFunction {
                     payload);
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "[ALERT] Generic error at " + Instant.now(), e);
+            logger.log(Level.SEVERE, "[ALERT] Generic error at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
             AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
                     .message("Taxonomy retrieval failed")
@@ -100,7 +102,6 @@ public class TaxonomyGetFunction {
                     payload);
         }
     }
-
 
     private static TaxonomyJson getTaxonomy(Logger logger) {
         try {
