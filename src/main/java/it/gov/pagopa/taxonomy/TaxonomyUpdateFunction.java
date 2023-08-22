@@ -20,6 +20,7 @@ import it.gov.pagopa.taxonomy.model.function.Message;
 import it.gov.pagopa.taxonomy.model.json.Taxonomy;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import it.gov.pagopa.taxonomy.util.AppUtil;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.modelmapper.ModelMapper;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
@@ -82,10 +83,10 @@ public class TaxonomyUpdateFunction {
     return modelMapper;
   }
 
-  @FunctionName("UpdateTrigger")
+  @FunctionName("FnHttpGenerate")
   public HttpResponseMessage updateTaxonomy(
       @HttpTrigger(
-          name = "UpdateTrigger",
+          name = "FnHttpGenerateTrigger",
           methods = {HttpMethod.GET},
           route = "generate",
           authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
@@ -102,7 +103,7 @@ public class TaxonomyUpdateFunction {
               );
 
     } catch (AppException e) {
-      logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now(), e);
+      logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
       String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
               .message("Taxonomy update failed")
               .error(e.getCodeMessage().message(e.getArgs()))
@@ -113,7 +114,8 @@ public class TaxonomyUpdateFunction {
               );
 
     } catch (Exception e) {
-      logger.log(Level.SEVERE, "[ALERT] Generic error at " + Instant.now(), e);
+      logger.log(Level.SEVERE, "[ALERT] Generic error at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+
       AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
       String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
               .message("Taxonomy update failed")
