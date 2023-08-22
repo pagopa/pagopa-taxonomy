@@ -33,6 +33,7 @@ public class TaxonomyGetFunction {
 
     private static BlobContainerClient blobContainerClientOutput;
     private static BlobServiceClient blobServiceClient;
+
     private static BlobServiceClient getBlobServiceClient(){
         if(blobServiceClient == null){
             blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
@@ -100,7 +101,6 @@ public class TaxonomyGetFunction {
                     payload);
         }
     }
-
 
     private static TaxonomyJson getTaxonomy(Logger logger) {
         try {

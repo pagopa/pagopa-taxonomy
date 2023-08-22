@@ -22,6 +22,7 @@ import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import it.gov.pagopa.taxonomy.util.AppUtil;
 import org.modelmapper.ModelMapper;
 import java.io.InputStreamReader;
+import java.nio.charset.StandardCharsets;
 import java.time.Instant;
 import java.util.List;
 import java.util.Optional;
@@ -43,6 +44,7 @@ public class TaxonomyUpdateFunction {
   private static BlobContainerClient blobContainerClientInput;
   private static BlobContainerClient blobContainerClientOutput;
   private static BlobServiceClient blobServiceClient;
+
   private static BlobServiceClient getBlobServiceClient(){
     if(blobServiceClient == null){
       blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
@@ -128,7 +130,7 @@ public class TaxonomyUpdateFunction {
     try {
       logger.info("Download csv file [" + csvName + "] from blob at [" + Instant.now().toString() + "]");
 
-      InputStreamReader inputStreamReader = new InputStreamReader(getBlobContainerClientInput().getBlobClient(csvName).downloadContent().toStream());
+      InputStreamReader inputStreamReader = new InputStreamReader(getBlobContainerClientInput().getBlobClient(csvName).downloadContent().toStream(), StandardCharsets.UTF_8);
 
       logger.info("Converting [" + csvName + "] into [" + jsonName + "]");
       List<TaxonomyCsv> taxonomyCsvList = new CsvToBeanBuilder<TaxonomyCsv>(inputStreamReader)
