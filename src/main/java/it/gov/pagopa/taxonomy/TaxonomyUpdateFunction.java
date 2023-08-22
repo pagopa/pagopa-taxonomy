@@ -17,7 +17,7 @@ import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.csv.TaxonomyCsv;
 import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
 import it.gov.pagopa.taxonomy.model.function.Message;
-import it.gov.pagopa.taxonomy.model.json.Taxonomy;
+import it.gov.pagopa.taxonomy.model.json.TaxonomyDatalake;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import it.gov.pagopa.taxonomy.util.AppUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -36,7 +36,7 @@ public class TaxonomyUpdateFunction {
 
   private static final String storageConnString = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
   private static final String blobContainerNameInput = System.getenv("BLOB_CONTAINER_NAME_INPUT");
-  private static final String blobContainerNameOuput = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
+  private static final String blobContainerNameOutput = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
   private static final String jsonName = System.getenv("JSON_NAME");
   private static final String csvName = System.getenv("CSV_NAME");
   private static ObjectMapper objectMapper = null;
@@ -62,11 +62,10 @@ public class TaxonomyUpdateFunction {
 
   private static BlobContainerClient getBlobContainerClientOutput(){
     if(blobContainerClientOutput == null){
-      blobContainerClientOutput = getBlobServiceClient().createBlobContainerIfNotExists(blobContainerNameOuput);
+      blobContainerClientOutput = getBlobServiceClient().createBlobContainerIfNotExists(blobContainerNameOutput);
     }
     return blobContainerClientOutput;
   }
-
 
   private static ObjectMapper getObjectMapper(){
     if(objectMapper == null){
@@ -144,11 +143,12 @@ public class TaxonomyUpdateFunction {
 
       Instant now = Instant.now();
       String id = UUID.randomUUID().toString();
+
       TaxonomyJson taxonomyJson = TaxonomyJson.builder()
               .uuid(id)
               .created(now)
               .taxonomyList(taxonomyCsvList.stream().map(taxonomyCsv ->
-                getModelMapper().map(taxonomyCsv, Taxonomy.class)
+                getModelMapper().map(taxonomyCsv, TaxonomyDatalake.class)
               ).collect(Collectors.toList()))
               .build();
 

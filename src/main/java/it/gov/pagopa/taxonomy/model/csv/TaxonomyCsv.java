@@ -36,9 +36,8 @@ public class TaxonomyCsv {
   private String validityStartDate;
   @CsvBindByName(column = "DATA FINE VALIDITA", required = true)
   private String validityEndDate;
-  /*
   @CsvBindByName(column = "COMBINAZIONE TOPIC E SUBTOPIC", required = true)
   private String topicSubtopicCombination;
   @CsvBindByName(column = "FLAG NUOVA COMBINAZIONE", required = true)
-  private String newCombinationFlag; */
+  private String newCombinationFlag;
 }
