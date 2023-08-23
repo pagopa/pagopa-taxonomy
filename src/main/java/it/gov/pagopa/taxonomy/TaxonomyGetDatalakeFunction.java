@@ -4,7 +4,6 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.microsoft.azure.functions.*;
@@ -15,20 +14,18 @@ import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
-import it.gov.pagopa.taxonomy.model.json.TaxonomyStandard;
 import it.gov.pagopa.taxonomy.util.AppConstant;
 import it.gov.pagopa.taxonomy.util.AppUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TaxonomyGetStandardFunction {
+public class TaxonomyGetDatalakeFunction {
 
     private static final String storageConnString = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
     private static final String blobContainerNameOutput = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
@@ -59,12 +56,12 @@ public class TaxonomyGetStandardFunction {
         return objectMapper;
     }
 
-    @FunctionName("FnHttpGetStandard")
-    public HttpResponseMessage getTaxonomyStandard(
+    @FunctionName("FnHttpGetDatalake")
+    public HttpResponseMessage getTaxonomyDatalake(
             @HttpTrigger(
-                    name = "FnHttpGetStandardTrigger",
+                    name = "FnHttpGetDatalakeTrigger",
                     methods = {HttpMethod.GET},
-                    route = "taxonomy",
+                    route = "taxonomydatalake",
                     authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
         Logger logger = context.getLogger();
@@ -75,10 +72,12 @@ public class TaxonomyGetStandardFunction {
             Map<String, String> map = new LinkedHashMap<>();
             map.put(AppConstant.RESPONSE_HEADER_UUID, taxonomyJson.getUuid());
             map.put(AppConstant.RESPONSE_HEADER_CREATED, taxonomyJson.getCreated().toString());
-            logger.info("Versioning json id = [" + taxonomyJson.getUuid() + "] to the standard version");
-            List<TaxonomyStandard> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
+            logger.info("Downloading json id = [" + taxonomyJson.getUuid() + "], Datalake version");
 
-            String payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
+            //logger.info("Versioning json id = [" + taxonomyJson.getUuid() + "] to the datalake version");
+            //List<TaxonomyDatalake> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
+
+            String payload = AppUtil.getPayload(getObjectMapper(), taxonomyJson.getTaxonomyList());
             logger.info("Taxonomy retrieved successfully");
             return AppUtil.writeResponseWithHeaders(request,
                     HttpStatus.OK,
