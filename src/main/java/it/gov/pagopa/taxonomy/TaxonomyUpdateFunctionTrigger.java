@@ -82,7 +82,7 @@ public class TaxonomyUpdateFunctionTrigger {
           @BlobTrigger(name = "file",
                   dataType = "binary",
                   path = "%BLOB_CONTAINER_NAME_INPUT%/%CSV_NAME%",
-                  connection = "AzureWebJobsStorage") byte[] content,
+                  connection = "STORAGE_ACCOUNT_CONN_STRING") byte[] content,
           final ExecutionContext context
   ) {
     Logger logger = context.getLogger();
