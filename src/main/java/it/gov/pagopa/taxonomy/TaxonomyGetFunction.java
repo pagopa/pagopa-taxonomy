@@ -4,6 +4,7 @@ import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.fasterxml.jackson.core.JsonProcessingException;
+import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.microsoft.azure.functions.*;
@@ -14,18 +15,21 @@ import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
+import it.gov.pagopa.taxonomy.model.json.TaxonomyStandard;
+import it.gov.pagopa.taxonomy.model.json.TaxonomyTopicFlag;
 import it.gov.pagopa.taxonomy.util.AppConstant;
 import it.gov.pagopa.taxonomy.util.AppUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
 import java.time.Instant;
 import java.util.LinkedHashMap;
+import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
 
-public class TaxonomyGetDatalakeFunction {
+public class TaxonomyGetFunction {
 
     private static final String storageConnString = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
     private static final String blobContainerNameOutput = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
@@ -56,36 +60,51 @@ public class TaxonomyGetDatalakeFunction {
         return objectMapper;
     }
 
-    @FunctionName("FnHttpGetDatalake")
-    public HttpResponseMessage getTaxonomyDatalake(
+    @FunctionName("FnHttpGet")
+    public HttpResponseMessage getTaxonomy(
             @HttpTrigger(
-                    name = "FnHttpGetDatalakeTrigger",
+                    name = "FnHttpGetTrigger",
                     methods = {HttpMethod.GET},
-                    route = "taxonomydatalake",
+                    route = "taxonomy/{version?}",
                     authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
         Logger logger = context.getLogger();
 
         try {
+            Map<String, String> queryParams = request.getQueryParameters();
+            String version = queryParams.get("version");
+
+            if(version == null || version.isEmpty()) {
+                logger.info("Version not specified, will convert into standard");
+                version = "standard";
+            } else if(!version.equalsIgnoreCase("standard") &&
+                    !version.equalsIgnoreCase("topicflag")) {
+                logger.info("Unknown version has been specified");
+                String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
+                        .message("Taxonomy retrieval failed")
+                        .error("Unknown version has been specified")
+                        .build());
+                return AppUtil.writeResponse(request,
+                        HttpStatus.NOT_IMPLEMENTED,
+                        payload);
+            }
+
             TaxonomyJson taxonomyJson = getTaxonomy(logger);
 
             Map<String, String> map = new LinkedHashMap<>();
             map.put(AppConstant.RESPONSE_HEADER_UUID, taxonomyJson.getUuid());
             map.put(AppConstant.RESPONSE_HEADER_CREATED, taxonomyJson.getCreated().toString());
-            logger.info("Downloading json id = [" + taxonomyJson.getUuid() + "], Datalake version");
+            map.put(AppConstant.RESPONSE_HEADER_VERSION, version);
 
-            //logger.info("Versioning json id = [" + taxonomyJson.getUuid() + "] to the datalake version");
-            //List<TaxonomyDatalake> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
+            String payload = generatePayload(logger, version, taxonomyJson);
 
-            String payload = AppUtil.getPayload(getObjectMapper(), taxonomyJson.getTaxonomyList());
-            logger.info("Taxonomy retrieved successfully");
             return AppUtil.writeResponseWithHeaders(request,
                     HttpStatus.OK,
                     payload,
                     map);
 
         } catch (AppException e) {
-            logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+            logger.log(Level.SEVERE, "[ALERT][Get] AppException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
                     .message("Taxonomy retrieval failed")
                     .error(e.getCodeMessage().message(e.getArgs()))
@@ -95,7 +114,7 @@ public class TaxonomyGetDatalakeFunction {
                     payload);
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "[ALERT] Generic error at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+            logger.log(Level.SEVERE, "[ALERT][Get] GenericError at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
             AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
                     .message("Taxonomy retrieval failed")
@@ -117,5 +136,21 @@ public class TaxonomyGetDatalakeFunction {
             logger.info("An AppException has occurred");
             throw new AppException(parsingException, AppErrorCodeMessageEnum.JSON_PARSING_ERROR);
         }
+    }
+
+    private static String generatePayload(Logger logger, String version, TaxonomyJson taxonomyJson) {
+        String payload = null;
+        if (version.equalsIgnoreCase("standard")) {
+            logger.info("Versioning json id = [" + taxonomyJson.getUuid() + "] to the standard version");
+            List<TaxonomyStandard> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
+            payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
+            logger.info("Standard taxonomy retrieved successfully");
+        } else if (version.equalsIgnoreCase("topicflag")) {
+            logger.info("Versioning json id = [" + taxonomyJson.getUuid() + "] to the topic-flag version");
+            List<TaxonomyTopicFlag> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
+            payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
+            logger.info("Topic-flag taxonomy retrieved successfully");
+        }
+        return payload;
     }
 }

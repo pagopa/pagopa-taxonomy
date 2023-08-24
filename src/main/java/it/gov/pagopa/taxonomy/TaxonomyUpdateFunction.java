@@ -17,7 +17,7 @@ import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.csv.TaxonomyCsv;
 import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
 import it.gov.pagopa.taxonomy.model.function.Message;
-import it.gov.pagopa.taxonomy.model.json.TaxonomyDatalake;
+import it.gov.pagopa.taxonomy.model.json.TaxonomyTopicFlag;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import it.gov.pagopa.taxonomy.util.AppUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
@@ -148,7 +148,7 @@ public class TaxonomyUpdateFunction {
               .uuid(id)
               .created(now)
               .taxonomyList(taxonomyCsvList.stream().map(taxonomyCsv ->
-                getModelMapper().map(taxonomyCsv, TaxonomyDatalake.class)
+                getModelMapper().map(taxonomyCsv, TaxonomyTopicFlag.class)
               ).collect(Collectors.toList()))
               .build();
 

@@ -9,7 +9,7 @@
       "routePrefix": ""
     }
   },
-  "functions": [ "FnHttpInfo", "FnHttpGenerate", "FnHttpGetStandard", "FnHttpGetDatalake"],
+  "functions": [ "FnHttpInfo", "FnHttpGenerate", "FnHttpGet"],
   "logging": {
     "applicationInsights": {
       "samplingSettings": {

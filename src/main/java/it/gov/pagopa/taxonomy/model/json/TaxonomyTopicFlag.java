@@ -9,5 +9,5 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TaxonomyDatalake extends Taxonomy {
+public class TaxonomyTopicFlag extends Taxonomy {
 }
