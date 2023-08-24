@@ -102,7 +102,7 @@ public class TaxonomyUpdateFunction {
               );
 
     } catch (AppException e) {
-      logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+      logger.log(Level.SEVERE, "[ALERT][Update] AppException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
       String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
               .message("Taxonomy update failed")
               .error(e.getCodeMessage().message(e.getArgs()))
@@ -113,7 +113,7 @@ public class TaxonomyUpdateFunction {
               );
 
     } catch (Exception e) {
-      logger.log(Level.SEVERE, "[ALERT] Generic error at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+      logger.log(Level.SEVERE, "[ALERT][Update] GenericError at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
 
       AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
       String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()

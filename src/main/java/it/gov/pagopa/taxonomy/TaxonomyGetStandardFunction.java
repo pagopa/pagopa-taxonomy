@@ -86,7 +86,7 @@ public class TaxonomyGetStandardFunction {
                     map);
 
         } catch (AppException e) {
-            logger.log(Level.SEVERE, "[ALERT] AppException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+            logger.log(Level.SEVERE, "[ALERT][Get] AppException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
                     .message("Taxonomy retrieval failed")
                     .error(e.getCodeMessage().message(e.getArgs()))
@@ -96,7 +96,7 @@ public class TaxonomyGetStandardFunction {
                     payload);
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "[ALERT] Generic error at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+            logger.log(Level.SEVERE, "[ALERT][Get] GenericError at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
             AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
                     .message("Taxonomy retrieval failed")
