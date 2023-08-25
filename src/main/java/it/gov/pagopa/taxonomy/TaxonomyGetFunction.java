@@ -34,6 +34,8 @@ import java.util.logging.Logger;
 
 public class TaxonomyGetFunction {
 
+    private static final String VERSION_NOT_EXISTS_ERROR = AppMessageUtil.getMessage("version.not.exists.error");
+    private static final String GENERIC_RETRIEVAL_ERROR = AppMessageUtil.getMessage("generic.retrieval.error");
     private static final String STORAGE_CONN_STRING = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
     private static final String BLOB_CONTAINER_NAME_OUTPUT = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
     private static final String JSON_NAME = System.getenv("JSON_NAME");
@@ -80,10 +82,10 @@ public class TaxonomyGetFunction {
             if(!version.equalsIgnoreCase(VersionEnum.STANDARD.toString()) &&
                     !version.equalsIgnoreCase(VersionEnum.TOPIC_FLAG.toString())) {
 
-                logger.info("version.not.exists.error");
+                logger.info(AppMessageUtil.getMessage(VERSION_NOT_EXISTS_ERROR));
                 String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-                        .message(AppMessageUtil.getMessage("generic.retrieval.error"))
-                        .error("version.not.exists.error")
+                        .message(AppMessageUtil.getMessage(GENERIC_RETRIEVAL_ERROR))
+                        .error(VERSION_NOT_EXISTS_ERROR)
                         .build());
 
                 return AppUtil.writeResponse(request,
@@ -106,10 +108,10 @@ public class TaxonomyGetFunction {
                     map);
 
         } catch (AppException e) {
-            logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] AppException at {0}\n {1}", Instant.now().toString(),ExceptionUtils.getMessage(e)));
+            logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] AppException at {0}\n {1}", Instant.now(),ExceptionUtils.getMessage(e)));
 
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-                    .message(AppMessageUtil.getMessage("generic.retrieval.error"))
+                    .message(AppMessageUtil.getMessage(GENERIC_RETRIEVAL_ERROR))
                     .error(e.getCodeMessage().message(e.getArgs()))
                     .build());
             return AppUtil.writeResponse(request,
@@ -117,11 +119,11 @@ public class TaxonomyGetFunction {
                     payload);
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] GenericError at {0}\n {1}", Instant.now().toString(), ExceptionUtils.getMessage(e)));
+            logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] GenericError at {0}\n {1}", Instant.now(), ExceptionUtils.getMessage(e)));
 
             AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-                    .message(AppMessageUtil.getMessage("generic.retrieval.error"))
+                    .message(AppMessageUtil.getMessage(GENERIC_RETRIEVAL_ERROR))
                     .error(appException.getCodeMessage().message(appException.getArgs()))
                     .build());
             return AppUtil.writeResponse(request,
@@ -147,7 +149,7 @@ public class TaxonomyGetFunction {
 
     private static String generatePayload(Logger logger, String version, TaxonomyJson taxonomyJson) {
         String payload = null;
-        if (version.equalsIgnoreCase(VersionEnum.STANDARD.toString())) {
+                if (version.equalsIgnoreCase(VersionEnum.STANDARD.toString())) {
             logger.info(MessageFormat.format("Versioning json id = [{0}] to the standard version",taxonomyJson.getUuid()));
             List<TaxonomyStandard> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
             payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);

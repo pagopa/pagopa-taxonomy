@@ -95,17 +95,17 @@ public class TaxonomyUpdateFunctionTrigger {
       logger.info("Taxonomy updated successfully");
 
     } catch (AppException e) {
-      logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Update][Triggered] AppException at {0}\n {1}",Instant.now().toString(), ExceptionUtils.getStackTrace(e)));
+      logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Update][Triggered] AppException at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
 
     } catch (Exception e) {
-      logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Update][Triggered] Generic error at {0}\n {1}",Instant.now().toString(), ExceptionUtils.getStackTrace(e)));
+      logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Update][Triggered] Generic error at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
 
     }
   }
 
   private static void updateTaxonomy(Logger logger) {
     try {
-      logger.info(MessageFormat.format("Download csv file [{0}] from blob at [{1}]", CSV_NAME, Instant.now().toString()));
+      logger.info(MessageFormat.format("Download csv file [{0}] from blob at [{1}]", CSV_NAME, Instant.now()));
 
       InputStreamReader inputStreamReader = new InputStreamReader(getBlobContainerClientInput().getBlobClient(CSV_NAME).downloadContent().toStream(), StandardCharsets.UTF_8);
 
