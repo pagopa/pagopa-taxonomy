@@ -72,18 +72,17 @@ public class TaxonomyGetFunction {
 
         try {
             Map<String, String> queryParams = request.getQueryParameters();
-            String version = queryParams.get("version");
+            String version = queryParams.getOrDefault("version", "standard");
 
-            if(version == null || version.isEmpty()) {
-                logger.info("Version not specified, will convert into standard");
-                version = "standard";
-            } else if(!version.equalsIgnoreCase("standard") &&
+            if(!version.equalsIgnoreCase("standard") &&
                     !version.equalsIgnoreCase("topicflag")) {
+
                 logger.info("Unknown version has been specified");
                 String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
                         .message("Taxonomy retrieval failed")
                         .error("Unknown version has been specified")
                         .build());
+
                 return AppUtil.writeResponse(request,
                         HttpStatus.NOT_IMPLEMENTED,
                         payload);
