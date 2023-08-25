@@ -38,6 +38,8 @@ import java.util.stream.Collectors;
 
 public class TaxonomyUpdateFunction {
 
+  private static String msg = null;
+
   private static final String UPDATE_FAILED = AppMessageUtil.getMessage("update.failed");
   private static final String STORAGE_ACCOUNT_CONN_STRING = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
   private static final String BLOB_CONTAINER_NAME_INPUT = System.getenv("BLOB_CONTAINER_NAME_INPUT");
@@ -159,10 +161,12 @@ public class TaxonomyUpdateFunction {
 
   private static void updateTaxonomy(Logger logger) {
     try {
-      logger.info(MessageFormat.format("Download csv file [{0}] from blob at [{1}]", CSV_NAME,Instant.now()));
+      msg=MessageFormat.format("Download csv file [{0}] from blob at [{1}]", CSV_NAME,Instant.now());
+      logger.info(msg);
       InputStreamReader inputStreamReader = new InputStreamReader(getBlobContainerClientInput().getBlobClient(CSV_NAME).downloadContent().toStream(), StandardCharsets.UTF_8);
 
-      logger.info(MessageFormat.format("Converting [{0}] into [{1}]",CSV_NAME,JSON_NAME));
+      msg=MessageFormat.format("Converting [{0}] into [{1}]",CSV_NAME,JSON_NAME);
+      logger.info(msg);
       List<TaxonomyCsv> taxonomyCsvList = new CsvToBeanBuilder<TaxonomyCsv>(inputStreamReader)
               .withSeparator(';')
               .withSkipLines(0)
@@ -183,7 +187,8 @@ public class TaxonomyUpdateFunction {
 
       byte[] jsonBytes = getObjectMapper().writeValueAsBytes(taxonomyJson);
 
-      logger.info(MessageFormat.format("Uploading json id = [{0}] created at: [{1}]",id,now));
+      msg=MessageFormat.format("Uploading json id = [{0}] created at: [{1}]",id,now);
+      logger.info(msg);
       getBlobContainerClientOutput().getBlobClient(JSON_NAME).upload(BinaryData.fromBytes(jsonBytes), true);
 
     } catch (JsonProcessingException | IllegalStateException parsingException) {
