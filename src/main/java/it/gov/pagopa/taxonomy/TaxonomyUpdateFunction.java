@@ -4,6 +4,8 @@ import com.azure.core.util.BinaryData;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobErrorCode;
+import com.azure.storage.blob.models.BlobStorageException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
@@ -105,17 +107,42 @@ public class TaxonomyUpdateFunction {
     } catch (AppException e) {
       logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get][Triggered] AppException at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
       String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-              .message("Taxonomy update failed")
-              .error(e.getCodeMessage().message(e.getArgs()))
-              .build());
+          .message("Taxonomy update failed")
+          .error(e.getCodeMessage().message(e.getArgs()))
+          .build());
       return AppUtil.writeResponse(request,
-              HttpStatus.valueOf(e.getCodeMessage().httpStatus().name()),
-              payload
-              );
+          HttpStatus.valueOf(e.getCodeMessage().httpStatus().name()),
+          payload
+      );
 
+    } catch (BlobStorageException e) {
+      if(e.getErrorCode().equals(BlobErrorCode.BLOB_NOT_FOUND)) {
+        logger.log(Level.SEVERE, "[ALERT][Update] BlobStorageException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+        AppException appException = new AppException(e, AppErrorCodeMessageEnum.BLOB_NOT_FOUND_CSV_ERROR);
+        String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
+            .message("Taxonomy update failed")
+            .error(appException.getCodeMessage().message(appException.getArgs()))
+            .build());
+        return AppUtil.writeResponse(request,
+            HttpStatus.valueOf(appException.getCodeMessage().httpStatus().name()),
+            payload
+        );
+      } else {
+        logger.log(Level.SEVERE, "[ALERT][Update] BlobStorageException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+        AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
+        String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
+            .message("Taxonomy update failed")
+            .error(appException.getCodeMessage().message(appException.getArgs()))
+            .build());
+        return AppUtil.writeResponse(request,
+            HttpStatus.valueOf(appException.getCodeMessage().httpStatus().name()),
+            payload
+        );
+      }
     } catch (Exception e) {
       logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Get][Triggered] Generic error at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
 
+      logger.log(Level.SEVERE, "[ALERT][Update] GenericError at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
       AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
       String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
               .message("Taxonomy update failed")

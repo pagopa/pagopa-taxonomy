@@ -3,6 +3,8 @@ package it.gov.pagopa.taxonomy;
 import com.azure.storage.blob.BlobContainerClient;
 import com.azure.storage.blob.BlobServiceClient;
 import com.azure.storage.blob.BlobServiceClientBuilder;
+import com.azure.storage.blob.models.BlobErrorCode;
+import com.azure.storage.blob.models.BlobStorageException;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -89,7 +91,7 @@ public class TaxonomyGetFunction {
                         .build());
 
                 return AppUtil.writeResponse(request,
-                        HttpStatus.NOT_IMPLEMENTED,
+                        HttpStatus.BAD_REQUEST,
                         payload);
             }
 
@@ -115,9 +117,32 @@ public class TaxonomyGetFunction {
                     .error(e.getCodeMessage().message(e.getArgs()))
                     .build());
             return AppUtil.writeResponse(request,
-                    HttpStatus.valueOf(e.getCodeMessage().httpStatus().name()),
-                    payload);
-
+                HttpStatus.valueOf(e.getCodeMessage().httpStatus().name()),
+                payload);
+        } catch (BlobStorageException e) {
+                if(e.getErrorCode().equals(BlobErrorCode.BLOB_NOT_FOUND)) {
+                    logger.log(Level.SEVERE, "[ALERT][Get] BlobStorageException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+                    AppException appException = new AppException(e, AppErrorCodeMessageEnum.BLOB_NOT_FOUND_JSON_ERROR);
+                    String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
+                        .message("Taxonomy retrieval failed")
+                        .error(appException.getCodeMessage().message(appException.getArgs()))
+                        .build());
+                    return AppUtil.writeResponse(request,
+                        HttpStatus.valueOf(appException.getCodeMessage().httpStatus().name()),
+                        payload
+                    );
+                } else {
+                    logger.log(Level.SEVERE, "[ALERT][Get] BlobStorageException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+                    AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
+                    String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
+                        .message("Taxonomy retrieval failed")
+                        .error(appException.getCodeMessage().message(appException.getArgs()))
+                        .build());
+                    return AppUtil.writeResponse(request,
+                        HttpStatus.valueOf(appException.getCodeMessage().httpStatus().name()),
+                        payload
+                    );
+                }
         } catch (Exception e) {
             logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] GenericError at {0}\n {1}", Instant.now(), ExceptionUtils.getMessage(e)));
 
