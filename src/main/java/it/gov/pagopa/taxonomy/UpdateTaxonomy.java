@@ -25,6 +25,8 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class UpdateTaxonomy {
+    private UpdateTaxonomy(){
+    }
     private static String msg = null;
     private static final String JSON_NAME = System.getenv("JSON_NAME");
     private static final String CSV_NAME = System.getenv("CSV_NAME");
