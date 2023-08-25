@@ -105,7 +105,7 @@ public class TaxonomyUpdateFunctionTrigger {
 
   private static void updateTaxonomy(Logger logger) {
     try {
-      logger.info(MessageFormat.format("Download csv file [{0}] from blob at [{1}]", CSV_NAME, Instant.now()));
+      logger.info("Download csv file ["+ CSV_NAME + "] from blob at ["+ Instant.now() +"]");
 
       InputStreamReader inputStreamReader = new InputStreamReader(getBlobContainerClientInput().getBlobClient(CSV_NAME).downloadContent().toStream(), StandardCharsets.UTF_8);
 
