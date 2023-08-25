@@ -83,7 +83,7 @@ public class TaxonomyGetFunction {
             String version = queryParams.getOrDefault("version", VersionEnum.STANDARD.toString());
 
             if(!version.equalsIgnoreCase(VersionEnum.STANDARD.toString()) &&
-                    !version.equalsIgnoreCase(VersionEnum.TOPIC_FLAG.toString())) {
+                    !version.equalsIgnoreCase(VersionEnum.TOPICFLAG.toString())) {
 
                 logger.info(AppMessageUtil.getMessage(VERSION_NOT_EXISTS_ERROR));
                 String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
@@ -183,13 +183,13 @@ public class TaxonomyGetFunction {
             payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
             msg=MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.STANDARD);
             logger.info(msg);
-        } else if (version.equalsIgnoreCase(VersionEnum.TOPIC_FLAG.toString())) {
-            msg=MessageFormat.format("Versioning json id = [{0}] to the {1} version", taxonomyJson.getUuid(), VersionEnum.TOPIC_FLAG);
+        } else if (version.equalsIgnoreCase(VersionEnum.TOPICFLAG.toString())) {
+            msg=MessageFormat.format("Versioning json id = [{0}] to the {1} version", taxonomyJson.getUuid(), VersionEnum.TOPICFLAG);
             logger.info(msg);
 
             List<TaxonomyTopicFlag> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
             payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
-            msg=MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.TOPIC_FLAG);
+            msg=MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.TOPICFLAG);
             logger.info(msg);
         }
         return payload;

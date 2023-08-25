@@ -87,8 +87,6 @@ public class TaxonomyUpdateFunctionTrigger {
           final ExecutionContext context
   ) {
     Logger logger = context.getLogger();
-    logger.info("Name: " + CSV_NAME + " Size: " + content.length + " bytes");
-
 
     try {
       updateTaxonomy(logger);
