@@ -2,7 +2,6 @@ package it.gov.pagopa.taxonomy.exception;
 
 import it.gov.pagopa.taxonomy.util.AppConstant;
 import it.gov.pagopa.taxonomy.util.AppMessageUtil;
-
 import jakarta.ws.rs.core.Response;
 import jakarta.ws.rs.core.Response.Status;
 

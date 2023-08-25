@@ -1,40 +1,26 @@
 package it.gov.pagopa.taxonomy;
 
-import com.azure.core.util.BinaryData;
-import com.azure.storage.blob.BlobContainerClient;
-import com.azure.storage.blob.BlobServiceClient;
-import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
-import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.microsoft.azure.functions.*;
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
-import com.opencsv.bean.CsvToBeanBuilder;
 import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
-import it.gov.pagopa.taxonomy.model.csv.TaxonomyCsv;
 import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
 import it.gov.pagopa.taxonomy.model.function.Message;
-import it.gov.pagopa.taxonomy.model.json.TaxonomyTopicFlag;
-import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import it.gov.pagopa.taxonomy.util.AppMessageUtil;
 import it.gov.pagopa.taxonomy.util.AppUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
-import org.modelmapper.ModelMapper;
-import java.io.InputStreamReader;
-import java.nio.charset.StandardCharsets;
+
 import java.text.MessageFormat;
 import java.time.Instant;
-import java.util.List;
 import java.util.Optional;
-import java.util.UUID;
 import java.util.logging.Level;
 import java.util.logging.Logger;
-import java.util.stream.Collectors;
 
 public class TaxonomyUpdateFunction {
 
