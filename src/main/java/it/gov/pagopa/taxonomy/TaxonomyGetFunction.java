@@ -11,6 +11,7 @@ import com.microsoft.azure.functions.*;
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
+import it.gov.pagopa.taxonomy.enums.VersionEnum;
 import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
@@ -18,9 +19,11 @@ import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyStandard;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyTopicFlag;
 import it.gov.pagopa.taxonomy.util.AppConstant;
+import it.gov.pagopa.taxonomy.util.AppMessageUtil;
 import it.gov.pagopa.taxonomy.util.AppUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 
+import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.LinkedHashMap;
 import java.util.List;
@@ -31,23 +34,23 @@ import java.util.logging.Logger;
 
 public class TaxonomyGetFunction {
 
-    private static final String storageConnString = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
-    private static final String blobContainerNameOutput = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
-    private static final String jsonName = System.getenv("JSON_NAME");
+    private static final String STORAGE_CONN_STRING = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
+    private static final String BLOB_CONTAINER_NAME_OUTPUT = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
+    private static final String JSON_NAME = System.getenv("JSON_NAME");
     private static ObjectMapper objectMapper = null;
     private static BlobContainerClient blobContainerClientOutput;
     private static BlobServiceClient blobServiceClient;
 
     private static BlobServiceClient getBlobServiceClient(){
         if(blobServiceClient == null){
-            blobServiceClient = new BlobServiceClientBuilder().connectionString(storageConnString).buildClient();
+            blobServiceClient = new BlobServiceClientBuilder().connectionString(STORAGE_CONN_STRING).buildClient();
         }
         return blobServiceClient;
     }
 
     private static BlobContainerClient getBlobContainerClientOutput(){
         if(blobContainerClientOutput == null){
-            blobContainerClientOutput = getBlobServiceClient().createBlobContainerIfNotExists(blobContainerNameOutput);
+            blobContainerClientOutput = getBlobServiceClient().createBlobContainerIfNotExists(BLOB_CONTAINER_NAME_OUTPUT);
         }
         return blobContainerClientOutput;
     }
@@ -72,15 +75,15 @@ public class TaxonomyGetFunction {
 
         try {
             Map<String, String> queryParams = request.getQueryParameters();
-            String version = queryParams.getOrDefault("version", "standard");
+            String version = queryParams.getOrDefault("version", VersionEnum.STANDARD.toString());
 
-            if(!version.equalsIgnoreCase("standard") &&
-                    !version.equalsIgnoreCase("topicflag")) {
+            if(!version.equalsIgnoreCase(VersionEnum.STANDARD.toString()) &&
+                    !version.equalsIgnoreCase(VersionEnum.TOPIC_FLAG.toString())) {
 
-                logger.info("Unknown version has been specified");
+                logger.info("version.not.exists.error");
                 String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-                        .message("Taxonomy retrieval failed")
-                        .error("Unknown version has been specified")
+                        .message(AppMessageUtil.getMessage("generic.retrieval.error"))
+                        .error("version.not.exists.error")
                         .build());
 
                 return AppUtil.writeResponse(request,
@@ -103,9 +106,10 @@ public class TaxonomyGetFunction {
                     map);
 
         } catch (AppException e) {
-            logger.log(Level.SEVERE, "[ALERT][Get] AppException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+            logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] AppException at {0}\n {1}", Instant.now().toString(),ExceptionUtils.getMessage(e)));
+
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-                    .message("Taxonomy retrieval failed")
+                    .message(AppMessageUtil.getMessage("generic.retrieval.error"))
                     .error(e.getCodeMessage().message(e.getArgs()))
                     .build());
             return AppUtil.writeResponse(request,
@@ -113,10 +117,11 @@ public class TaxonomyGetFunction {
                     payload);
 
         } catch (Exception e) {
-            logger.log(Level.SEVERE, "[ALERT][Get] GenericError at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+            logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] GenericError at {0}\n {1}", Instant.now().toString(), ExceptionUtils.getMessage(e)));
+
             AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-                    .message("Taxonomy retrieval failed")
+                    .message(AppMessageUtil.getMessage("generic.retrieval.error"))
                     .error(appException.getCodeMessage().message(appException.getArgs()))
                     .build());
             return AppUtil.writeResponse(request,
@@ -128,8 +133,11 @@ public class TaxonomyGetFunction {
     private static TaxonomyJson getTaxonomy(Logger logger) {
         try {
             Instant now = Instant.now();
-            logger.info("Retrieving the json file from the blob storage at: [" + now + "]");
-            String content = getBlobContainerClientOutput().getBlobClient(jsonName).downloadContent().toString();
+            logger.info(MessageFormat.format("Retrieving the json file from the blob storage at: [{0}]",now));
+            String content = getBlobContainerClientOutput()
+                    .getBlobClient(JSON_NAME)
+                    .downloadContent()
+                    .toString();
             return getObjectMapper().readValue(content, TaxonomyJson.class);
         } catch (JsonProcessingException parsingException) {
             logger.info("An AppException has occurred");
@@ -139,13 +147,15 @@ public class TaxonomyGetFunction {
 
     private static String generatePayload(Logger logger, String version, TaxonomyJson taxonomyJson) {
         String payload = null;
-        if (version.equalsIgnoreCase("standard")) {
-            logger.info("Versioning json id = [" + taxonomyJson.getUuid() + "] to the standard version");
+        if (version.equalsIgnoreCase(VersionEnum.STANDARD.toString())) {
+            logger.info(MessageFormat.format("Versioning json id = [{0}] to the standard version",taxonomyJson.getUuid()));
             List<TaxonomyStandard> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
             payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
             logger.info("Standard taxonomy retrieved successfully");
-        } else if (version.equalsIgnoreCase("topicflag")) {
+        } else if (version.equalsIgnoreCase(VersionEnum.TOPIC_FLAG.toString())) {
             logger.info("Versioning json id = [" + taxonomyJson.getUuid() + "] to the topic-flag version");
+            logger.info(MessageFormat.format("Versioning json id = [{0}] to the topic-flag version",taxonomyJson.getUuid()));
+
             List<TaxonomyTopicFlag> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
             payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
             logger.info("Topic-flag taxonomy retrieved successfully");
