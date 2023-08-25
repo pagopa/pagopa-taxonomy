@@ -110,7 +110,7 @@ public class TaxonomyGetFunction {
                     map);
 
         } catch (AppException e) {
-            logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] AppException at {0}\n {1}", Instant.now(),ExceptionUtils.getMessage(e)));
+            logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] AppException at {0}\n {1}", Instant.now(), ExceptionUtils.getMessage(e)));
 
             String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
                     .message(AppMessageUtil.getMessage(GENERIC_RETRIEVAL_ERROR))
@@ -121,10 +121,11 @@ public class TaxonomyGetFunction {
                 payload);
         } catch (BlobStorageException e) {
                 if(e.getErrorCode().equals(BlobErrorCode.BLOB_NOT_FOUND)) {
-                    logger.log(Level.SEVERE, "[ALERT][Get] BlobStorageException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+                    logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] BlobStorageException at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
+
                     AppException appException = new AppException(e, AppErrorCodeMessageEnum.BLOB_NOT_FOUND_JSON_ERROR);
                     String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-                        .message("Taxonomy retrieval failed")
+                        .message(GENERIC_RETRIEVAL_ERROR)
                         .error(appException.getCodeMessage().message(appException.getArgs()))
                         .build());
                     return AppUtil.writeResponse(request,
@@ -132,10 +133,10 @@ public class TaxonomyGetFunction {
                         payload
                     );
                 } else {
-                    logger.log(Level.SEVERE, "[ALERT][Get] BlobStorageException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+                    logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get] BlobStorageException at {0}\n {1}", Instant.now(), ExceptionUtils.getStackTrace(e)));
                     AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
                     String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-                        .message("Taxonomy retrieval failed")
+                        .message(GENERIC_RETRIEVAL_ERROR)
                         .error(appException.getCodeMessage().message(appException.getArgs()))
                         .build());
                     return AppUtil.writeResponse(request,
@@ -160,7 +161,7 @@ public class TaxonomyGetFunction {
     private static TaxonomyJson getTaxonomy(Logger logger) {
         try {
             Instant now = Instant.now();
-            logger.info(MessageFormat.format("Retrieving the json file from the blob storage at: [{0}]",now));
+            logger.info(MessageFormat.format("Retrieving the json file from the blob storage at: [{0}]", now));
             String content = getBlobContainerClientOutput()
                     .getBlobClient(JSON_NAME)
                     .downloadContent()
@@ -175,17 +176,16 @@ public class TaxonomyGetFunction {
     private static String generatePayload(Logger logger, String version, TaxonomyJson taxonomyJson) {
         String payload = null;
                 if (version.equalsIgnoreCase(VersionEnum.STANDARD.toString())) {
-            logger.info(MessageFormat.format("Versioning json id = [{0}] to the standard version",taxonomyJson.getUuid()));
+            logger.info(MessageFormat.format("Versioning json id = [{0}] to the {1} version", taxonomyJson.getUuid(), VersionEnum.STANDARD));
             List<TaxonomyStandard> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
             payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
-            logger.info("Standard taxonomy retrieved successfully");
+            logger.info(MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.STANDARD));
         } else if (version.equalsIgnoreCase(VersionEnum.TOPIC_FLAG.toString())) {
-            logger.info("Versioning json id = [" + taxonomyJson.getUuid() + "] to the topic-flag version");
-            logger.info(MessageFormat.format("Versioning json id = [{0}] to the topic-flag version",taxonomyJson.getUuid()));
+            logger.info(MessageFormat.format("Versioning json id = [{0}] to the {1} version", taxonomyJson.getUuid(), VersionEnum.TOPIC_FLAG));
 
             List<TaxonomyTopicFlag> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
             payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
-            logger.info("Topic-flag taxonomy retrieved successfully");
+            logger.info(MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.TOPIC_FLAG));
         }
         return payload;
     }

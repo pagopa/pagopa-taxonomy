@@ -21,6 +21,7 @@ import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
 import it.gov.pagopa.taxonomy.model.function.Message;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyTopicFlag;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
+import it.gov.pagopa.taxonomy.util.AppMessageUtil;
 import it.gov.pagopa.taxonomy.util.AppUtil;
 import org.apache.commons.lang3.exception.ExceptionUtils;
 import org.modelmapper.ModelMapper;
@@ -37,6 +38,7 @@ import java.util.stream.Collectors;
 
 public class TaxonomyUpdateFunction {
 
+  private static final String UPDATE_FAILED = AppMessageUtil.getMessage("update.failed");
   private static final String STORAGE_ACCOUNT_CONN_STRING = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
   private static final String BLOB_CONTAINER_NAME_INPUT = System.getenv("BLOB_CONTAINER_NAME_INPUT");
   private static final String BLOB_CONTAINER_NAME_OUTPUT = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
@@ -105,9 +107,9 @@ public class TaxonomyUpdateFunction {
               );
 
     } catch (AppException e) {
-      logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get][Triggered] AppException at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
+      logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Get][Triggered] AppException at {0}\n {1}", Instant.now(), ExceptionUtils.getStackTrace(e)));
       String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-          .message("Taxonomy update failed")
+          .message(UPDATE_FAILED)
           .error(e.getCodeMessage().message(e.getArgs()))
           .build());
       return AppUtil.writeResponse(request,
@@ -117,10 +119,11 @@ public class TaxonomyUpdateFunction {
 
     } catch (BlobStorageException e) {
       if(e.getErrorCode().equals(BlobErrorCode.BLOB_NOT_FOUND)) {
-        logger.log(Level.SEVERE, "[ALERT][Update] BlobStorageException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+        logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Update] BlobStorageException at {0} \n {1}" , Instant.now(), ExceptionUtils.getStackTrace(e)));
+
         AppException appException = new AppException(e, AppErrorCodeMessageEnum.BLOB_NOT_FOUND_CSV_ERROR);
         String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-            .message("Taxonomy update failed")
+            .message(UPDATE_FAILED)
             .error(appException.getCodeMessage().message(appException.getArgs()))
             .build());
         return AppUtil.writeResponse(request,
@@ -128,10 +131,10 @@ public class TaxonomyUpdateFunction {
             payload
         );
       } else {
-        logger.log(Level.SEVERE, "[ALERT][Update] BlobStorageException at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
+        logger.log(Level.SEVERE,MessageFormat.format( "[ALERT][Update] BlobStorageException at {0}\n {1}", Instant.now(), ExceptionUtils.getStackTrace(e)));
         AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
         String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-            .message("Taxonomy update failed")
+            .message(UPDATE_FAILED)
             .error(appException.getCodeMessage().message(appException.getArgs()))
             .build());
         return AppUtil.writeResponse(request,
@@ -142,10 +145,9 @@ public class TaxonomyUpdateFunction {
     } catch (Exception e) {
       logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Get][Triggered] Generic error at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
 
-      logger.log(Level.SEVERE, "[ALERT][Update] GenericError at " + Instant.now() + "\n" + ExceptionUtils.getStackTrace(e), e);
       AppException appException = new AppException(e, AppErrorCodeMessageEnum.ERROR);
       String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
-              .message("Taxonomy update failed")
+              .message(UPDATE_FAILED)
               .error(appException.getCodeMessage().message(appException.getArgs()))
               .build());
       return AppUtil.writeResponse(request,
