@@ -31,12 +31,10 @@ import java.util.stream.Collectors;
 
 public class TaxonomyUpdateFunctionTrigger {
 
-  private static String msg = null;
+
   private static final String STORAGE_ACCOUNT_CONN_STRING = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
   private static final String BLOB_CONTAINER_NAME_INPUT = System.getenv("BLOB_CONTAINER_NAME_INPUT");
   private static final String BLOB_CONTAINER_NAME_OUTPUT = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
-  private static final String JSON_NAME = System.getenv("JSON_NAME");
-  private static final String CSV_NAME = System.getenv("CSV_NAME");
   private static ObjectMapper objectMapper = null;
   private static ModelMapper modelMapper = null;
   private static BlobContainerClient blobContainerClientInput;
@@ -89,7 +87,7 @@ public class TaxonomyUpdateFunctionTrigger {
     Logger logger = context.getLogger();
 
     try {
-      updateTaxonomy(logger);
+      UpdateTaxonomy.updateTaxonomy(logger);
       logger.info("Taxonomy updated successfully");
 
     } catch (AppException e) {
@@ -101,42 +99,5 @@ public class TaxonomyUpdateFunctionTrigger {
     }
   }
 
-  private static void updateTaxonomy(Logger logger) {
-    try {
-      msg = MessageFormat.format("Download csv file [{0}] from blob at [{1}]", CSV_NAME, Instant.now());
-      logger.info(msg);
 
-      InputStreamReader inputStreamReader = new InputStreamReader(getBlobContainerClientInput().getBlobClient(CSV_NAME).downloadContent().toStream(), StandardCharsets.UTF_8);
-
-      msg = MessageFormat.format("Converting [{0}] into [{1}]", CSV_NAME, JSON_NAME);
-      logger.info(msg);
-      List<TaxonomyCsv> taxonomyCsvList = new CsvToBeanBuilder<TaxonomyCsv>(inputStreamReader)
-              .withSeparator(';')
-              .withSkipLines(0)
-              .withType(TaxonomyCsv.class)
-              .build()
-              .parse();
-
-      Instant now = Instant.now();
-      String id = UUID.randomUUID().toString();
-
-      TaxonomyJson taxonomyJson = TaxonomyJson.builder()
-              .uuid(id)
-              .created(now)
-              .taxonomyList(taxonomyCsvList.stream().map(taxonomyCsv ->
-                getModelMapper().map(taxonomyCsv, TaxonomyTopicFlag.class)
-              ).collect(Collectors.toList()))
-              .build();
-
-      byte[] jsonBytes = getObjectMapper().writeValueAsBytes(taxonomyJson);
-
-      msg=MessageFormat.format("Uploading json id = [{0}] created at: [{1}]",id,now);
-      logger.info(msg);
-      getBlobContainerClientOutput().getBlobClient(JSON_NAME).upload(BinaryData.fromBytes(jsonBytes), true);
-
-    } catch (JsonProcessingException | IllegalStateException parsingException) {
-      logger.info("An AppException has occurred");
-      throw new AppException(parsingException, AppErrorCodeMessageEnum.CSV_PARSING_ERROR);
-    }
-  }
 }
