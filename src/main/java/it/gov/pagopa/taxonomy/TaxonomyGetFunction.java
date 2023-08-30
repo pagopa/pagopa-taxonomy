@@ -85,7 +85,7 @@ public class TaxonomyGetFunction {
             if(!version.equalsIgnoreCase(VersionEnum.STANDARD.toString()) &&
                     !version.equalsIgnoreCase(VersionEnum.TOPICFLAG.toString())) {
 
-                logger.info(AppMessageUtil.getMessage(VERSION_NOT_EXISTS_ERROR));
+                logger.info(VERSION_NOT_EXISTS_ERROR);
                 String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
                         .message(AppMessageUtil.getMessage(GENERIC_RETRIEVAL_ERROR))
                         .error(VERSION_NOT_EXISTS_ERROR)
