@@ -27,10 +27,10 @@ public class TaxonomyUpdateFunctionTrigger {
       logger.info("Taxonomy updated successfully");
 
     } catch (AppException e) {
-      logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Update][Triggered] AppException at {0}\n {1}",Instant.now().toString(), ExceptionUtils.getStackTrace(e)));
+      logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Update-Triggered] AppException at {0}\n {1}",Instant.now().toString(), ExceptionUtils.getStackTrace(e)));
 
     } catch (Exception e) {
-      logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Update][Triggered] Generic error at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
+      logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Update-Triggered] Generic error at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
 
     }
   }
