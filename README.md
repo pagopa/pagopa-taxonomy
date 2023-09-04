@@ -1,9 +1,9 @@
 # pagoPA Functions taxonomy
 
-Java fdr-re-to-datastore Azure Function.
-The function aims to dump RE sent via Azure Event Hub to a CosmosDB, with a TTL of 120 days, and to an Azure Table Storage with a TTL of 10 years.
+Java Taxonomy Azure Function.
+This function has the role of converting a CSV file to JSON and retrieve it from a blob storage whenever needed.
 
-[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-fdr-re-to-datastore&metric=alert_status)](https://sonarcloud.io/dashboard?id=pagopa_pagopa-fdr-re-to-datastore)
+[![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-taxonomy&metric=alert_status)](https://sonarcloud.io/project/overview?id=pagopa_pagopa-taxonomy)
 
 
 ---
