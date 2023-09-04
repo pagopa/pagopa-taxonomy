@@ -3,10 +3,13 @@ package it.gov.pagopa.taxonomy.model.json;
 import com.fasterxml.jackson.annotation.JsonInclude;
 import com.fasterxml.jackson.annotation.JsonInclude.Include;
 import com.fasterxml.jackson.annotation.JsonProperty;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
+import lombok.experimental.SuperBuilder;
 
-
-@Builder
+@SuperBuilder
 @Getter
 @Setter
 @NoArgsConstructor
@@ -53,9 +56,9 @@ public class Taxonomy {
   @JsonProperty(value="DATA FINE VALIDITA")
   private String validityEndDate;
 
-  /*@JsonProperty(value="COMBINAZIONE TOPIC E SUBTOPIC")
+  @JsonProperty(value="COMBINAZIONE TOPIC E SUBTOPIC")
   private String topicSubtopicCombination;
 
   @JsonProperty(value="FLAG NUOVA COMBINAZIONE")
-  private String newCombinationFlag;*/
+  private String newCombinationFlag;
 }

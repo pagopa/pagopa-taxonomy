@@ -1,7 +1,10 @@
 package it.gov.pagopa.taxonomy.model.csv;
 
 import com.opencsv.bean.CsvBindByName;
-import lombok.*;
+import lombok.AllArgsConstructor;
+import lombok.Getter;
+import lombok.NoArgsConstructor;
+import lombok.Setter;
 
 
 
@@ -36,9 +39,8 @@ public class TaxonomyCsv {
   private String validityStartDate;
   @CsvBindByName(column = "DATA FINE VALIDITA", required = true)
   private String validityEndDate;
-  /*
   @CsvBindByName(column = "COMBINAZIONE TOPIC E SUBTOPIC", required = true)
   private String topicSubtopicCombination;
   @CsvBindByName(column = "FLAG NUOVA COMBINAZIONE", required = true)
-  private String newCombinationFlag; */
+  private String newCombinationFlag;
 }
