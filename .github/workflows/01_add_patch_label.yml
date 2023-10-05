@@ -13,55 +13,48 @@ on:
 
 # A workflow run is made up of one or more jobs that can run sequentially or in parallel
 jobs:
-  build:
-    # The type of runner that the job will run on
+  add_patch_label:
     runs-on: ubuntu-latest
-
-    # Steps represent a sequence of tasks that will be executed as part of the job
+    name: Add default label
     steps:
+      - name: Check user labels
+        id: check_user_labels
+        uses: actions/github-script@v6.3.3
+        with:
+          github-token: ${{ inputs.github_token }}
+          script: |
+            let { ADD_PATCH } = true;
+            // retrieve label list
+            let labels = await github.rest.issues.listLabelsOnIssue({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo
+            });
+            
+            // verify if user have already added IGNORE-FOR-RELEASE, then skip add PATCH
+            // note: GitHub labels are added in .identity/03_github_environment.tf
+            if (labels.data.find(label => label.name === 'ignore-for-release')){
+              ADD_PATCH = false;
+            }
+            return ADD_PATCH
+          result-encoding: boolean
 
-      add_patch_label:
-        runs-on: ubuntu-latest
-        name: Add default label
-        steps:
-          - name: Check user labels
-            id: check_user_labels
-            uses: actions/github-script@v6.3.3
-            with:
-              github-token: ${{ inputs.github_token }}
-              script: |
-                let { ADD_PATCH } = true;
-                // retrieve label list
-                let labels = await github.rest.issues.listLabelsOnIssue({
-                    issue_number: context.issue.number,
-                    owner: context.repo.owner,
-                    repo: context.repo.repo
-                });
-                
-                // verify if user have already added IGNORE-FOR-RELEASE, then skip add PATCH
-                // note: GitHub labels are added in .identity/03_github_environment.tf
-                if (labels.data.find(label => label.name === 'ignore-for-release')){
-                  ADD_PATCH = false;
-                }
-                return ADD_PATCH
-              result-encoding: boolean
+      - name: Add PATCH label
+        if: ${{ steps.check_user_labels.outputs.result }}
+        uses: pagopa/github-actions-template/default-label@main
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          label: 'patch'
 
-          - name: Add PATCH label
-            if: ${{ steps.check_user_labels.outputs.result }}
-            uses: pagopa/github-actions-template/default-label@main
-            with:
-              github_token: ${{ secrets.GITHUB_TOKEN }}
-              label: 'patch'
-
-          - name: Add comment
-            if: ${{ steps.check_user_labels.outputs.result }}
-            uses: actions/github-script@v6.3.3
-            with:
-              github-token: ${{ inputs.github_token }}
-              script: |
-                github.rest.issues.createComment({
-                    issue_number: context.issue.number,
-                    owner: context.repo.owner,
-                    repo: context.repo.repo,
-                    body: 'The default action is to increase the PATCH number of SEMVER. Set IGNORE-FOR-RELEASE if you want to skip SEMVER bump. BREAKING-CHANGE and NEW-RELEASE must be run from GH Actions section manually.'
-                  });
+      - name: Add comment
+        if: ${{ steps.check_user_labels.outputs.result }}
+        uses: actions/github-script@v6.3.3
+        with:
+          github-token: ${{ inputs.github_token }}
+          script: |
+            github.rest.issues.createComment({
+                issue_number: context.issue.number,
+                owner: context.repo.owner,
+                repo: context.repo.repo,
+                body: 'The default action is to increase the PATCH number of SEMVER. Set IGNORE-FOR-RELEASE if you want to skip SEMVER bump. BREAKING-CHANGE and NEW-RELEASE must be run from GH Actions section manually.'
+              });
