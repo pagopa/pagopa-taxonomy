@@ -159,11 +159,11 @@ jobs:
         run: echo "SEMVER=skip" >> $GITHUB_ENV
 
       - id: get_semver
-        name: Set Output
+        name: Set Semver
         run: echo "semver=${{env.SEMVER}}" >> $GITHUB_OUTPUT
 
       - id: output
-        name: Set Output
+        name: Set Environment
         run: echo "environment=${{env.ENVIRONMENT}}" >> $GITHUB_OUTPUT
 
   release:
