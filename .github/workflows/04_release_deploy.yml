@@ -70,12 +70,18 @@ jobs:
 
       - name: Branch or tag selection
         id: is_git_tag
-        run: |
-          if git tag --list "${{ github.ref_name }}" >/dev/null; then
-            return 1
-          else
-            return 0
-          fi
+        uses: actions/github-script@v6.3.3
+        with:
+          github-token: ${{ inputs.github_token }}
+          ref_name: ${{ github.ref_name }}
+          script: |
+            let { ref_name } = process.env;
+            if git tag --list "$ref_name" >/dev/null; then
+              return 1
+            else
+              return 0
+            fi
+          result-encoding: boolean
 
       # Set Environment
       - if: ${{ github.event.inputs.environment == null || github.event.inputs.environment == 'dev' }}
