@@ -23,7 +23,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            let { ADD_PATCH } = 'true';
+            var addPatch = "true";
             // retrieve label list
             let labels = await github.rest.issues.listLabelsOnIssue({
                 issue_number: context.issue.number,
@@ -32,11 +32,11 @@ jobs:
             });
             
             // verify if user have already added IGNORE-FOR-RELEASE, then skip add PATCH
-            // note: GitHub labels are added in .identity/03_github_environment.tf
+            // note: GitHub labels are added in .identity/03_github_environment.tf as github_issue_label resource
             if (labels.data.find(label => label.name === 'ignore-for-release')){
-              ADD_PATCH = 'false';
+              addPatch = "false";
             }
-            return ADD_PATCH;
+            return addPatch;
           result-encoding: string
 
       - name: Add PATCH label
