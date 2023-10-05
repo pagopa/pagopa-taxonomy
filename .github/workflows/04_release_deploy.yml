@@ -71,9 +71,10 @@ jobs:
       - name: Branch or tag selection
         id: is_git_tag
         uses: actions/github-script@v6.3.3
+        env:
+          ref_name: ${{ github.ref_name }}
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
-          ref_name: ${{ github.ref_name }}
           script: |
             let { ref_name } = process.env;
             if git tag --list "$ref_name" >/dev/null; then
