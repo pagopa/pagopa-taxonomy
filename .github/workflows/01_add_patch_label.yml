@@ -36,7 +36,7 @@ jobs:
             if (labels.data.find(label => label.name === 'ignore-for-release')){
               ADD_PATCH = 'false';
             }
-            return ADD_PATCH
+            return ADD_PATCH;
           result-encoding: string
 
       - name: Add PATCH label
