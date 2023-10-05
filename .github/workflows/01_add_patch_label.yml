@@ -23,7 +23,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            let { ADD_PATCH } = true;
+            let { ADD_PATCH } = 'true';
             // retrieve label list
             let labels = await github.rest.issues.listLabelsOnIssue({
                 issue_number: context.issue.number,
@@ -34,20 +34,20 @@ jobs:
             // verify if user have already added IGNORE-FOR-RELEASE, then skip add PATCH
             // note: GitHub labels are added in .identity/03_github_environment.tf
             if (labels.data.find(label => label.name === 'ignore-for-release')){
-              ADD_PATCH = false;
+              ADD_PATCH = 'false';
             }
             return ADD_PATCH
-          result-encoding: boolean
+          result-encoding: string
 
       - name: Add PATCH label
-        if: ${{ steps.check_user_labels.outputs.result }}
+        if: ${{ steps.check_user_labels.outputs.result == 'true' }}
         uses: pagopa/github-actions-template/default-label@default-label
         with:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           label: 'patch'
 
       - name: Add comment
-        if: ${{ steps.check_user_labels.outputs.result }}
+        if: ${{ steps.check_user_labels.outputs.result == 'true' }}
         uses: actions/github-script@v6.3.3
         with:
           github-token: ${{ inputs.github_token }}
