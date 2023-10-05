@@ -70,19 +70,12 @@ jobs:
 
       - name: Branch or tag selection
         id: is_git_tag
-        uses: actions/github-script@v6.3.3
-        env:
-          ref_name: ${{ github.ref_name }}
-        with:
-          github-token: ${{ secrets.GITHUB_TOKEN }}
-          script: |
-            let { ref_name } = process.env.ref_name;
-            if git tag --list "$ref_name" >/dev/null; then
-              return 1
-            else
-              return 0
-            fi
-          result-encoding: boolean
+        run: |
+          if git tag --list "${{ github.ref_name }}" >/dev/null; then
+            echo "IS_GIT_TAG=1" >> $GITHUB_ENV
+          else
+            echo "IS_GIT_TAG=0" >> $GITHUB_ENV
+          fi
 
       # Set Environment
       - if: ${{ github.event.inputs.environment == null || github.event.inputs.environment == 'dev' }}
@@ -150,8 +143,8 @@ jobs:
       - if: ${{ github.ref_name != 'main' && (env.ENVIRONMENT == 'uat' || env.ENVIRONMENT == 'prod') }}
         run: echo "SEMVER=patch" >> $GITHUB_ENV
 
-      # skip if in uat|prod env and deploy from specific tag
-      - if: ${{ steps.is_git_tag.outputs.result && (env.ENVIRONMENT == 'uat' || env.ENVIRONMENT == 'prod') }}
+      # override previous SEMVER if in uat|prod env and deploy from specific tag
+      - if: ${{ env.IS_GIT_TAG && (env.ENVIRONMENT == 'uat' || env.ENVIRONMENT == 'prod') }}
         run: echo "SEMVER=skip" >> $GITHUB_ENV
 
       - if: ${{ github.ref_name == 'main' && (env.ENVIRONMENT == 'uat' || env.ENVIRONMENT == 'prod') }}
