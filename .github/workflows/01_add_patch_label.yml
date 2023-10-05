@@ -21,7 +21,7 @@ jobs:
         id: check_user_labels
         uses: actions/github-script@v6.3.3
         with:
-          github-token: ${{ inputs.github_token }}
+          github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
             let { ADD_PATCH } = true;
             // retrieve label list
