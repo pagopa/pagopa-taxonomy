@@ -120,7 +120,7 @@ jobs:
       ## The following checks analyze manual workflow
 
       # force semver if dev, !=main or skip release
-      - if: ${{ (inputs.semver == 'new_release' || inputs.semver == 'breaking_change') && (ENVIRONMENT == 'uat' || ENVIRONMENT == 'prod') }}
+      - if: ${{ (inputs.semver == 'new_release' || inputs.semver == 'breaking_change') && (env.ENVIRONMENT == 'uat' || env.ENVIRONMENT == 'prod') }}
         run: |
           echo "❌ UAT and PROD accept only \"patch\" or \"promote\""
           exit 1
@@ -132,7 +132,7 @@ jobs:
         run: echo "SEMVER=major" >> $GITHUB_ENV
 
       # build-number if in dev env and deploy from specific branch
-      - if: ${{ github.ref_name != 'main' && ENVIRONMENT == 'dev'}}
+      - if: ${{ github.ref_name != 'main' && env.ENVIRONMENT == 'dev'}}
         run: |
           if ${{inputs.semver}} == 'new_release' || ${{inputs.semver}} == 'breaking_change'):
             echo "⚠️ \"breaking-change\" and \"new-release\" are accepted only with main branch. Setting buildingNumber."
@@ -140,14 +140,14 @@ jobs:
           echo "SEMVER=buildNumber" >> $GITHUB_ENV
 
       # patch if in uat|prod env and deploy from specific branch
-      - if: ${{ github.ref_name != 'main' && (ENVIRONMENT == 'uat' || ENVIRONMENT == 'prod') }}
+      - if: ${{ github.ref_name != 'main' && (env.ENVIRONMENT == 'uat' || env.ENVIRONMENT == 'prod') }}
         run: echo "SEMVER=patch" >> $GITHUB_ENV
 
       # skip if in uat|prod env and deploy from specific tag
-      - if: ${{ steps.is_git_tag.outputs.result && (ENVIRONMENT == 'uat' || ENVIRONMENT == 'prod') }}
+      - if: ${{ steps.is_git_tag.outputs.result && (env.ENVIRONMENT == 'uat' || env.ENVIRONMENT == 'prod') }}
         run: echo "SEMVER=skip" >> $GITHUB_ENV
 
-      - if: ${{ github.ref_name == 'main' && (ENVIRONMENT == 'uat' || ENVIRONMENT == 'prod') }}
+      - if: ${{ github.ref_name == 'main' && (env.ENVIRONMENT == 'uat' || env.ENVIRONMENT == 'prod') }}
         run: |
           echo "❌ UAT and PROD accept only \"patch\" or \"promote\" from specific TAG, custom branch (for bugfixing) but MAIN branch is not accepted"
           exit 1
