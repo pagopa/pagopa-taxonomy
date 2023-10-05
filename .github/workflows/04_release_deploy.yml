@@ -76,7 +76,7 @@ jobs:
         with:
           github-token: ${{ secrets.GITHUB_TOKEN }}
           script: |
-            let { ref_name } = process.env;
+            let { ref_name } = process.env.ref_name;
             if git tag --list "$ref_name" >/dev/null; then
               return 1
             else
