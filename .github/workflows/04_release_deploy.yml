@@ -134,10 +134,12 @@ jobs:
       # build-number if in dev env and deploy from specific branch
       - if: ${{ github.ref_name != 'main' && env.ENVIRONMENT == 'dev'}}
         run: |
-          if ${{inputs.semver}} == 'new_release' || ${{inputs.semver}} == 'breaking_change':
-            echo "⚠️ \"breaking-change\" and \"new-release\" are accepted only with main branch. Setting buildingNumber."
+          if $semver == 'new_release' || $semver == 'breaking_change':
+            echo "⚠️ \"breaking-change\" and \"new-release\" are accepted only with main branch. Setting buildNumber."
           fi
           echo "SEMVER=buildNumber" >> $GITHUB_ENV
+        env:
+          semver: ${{inputs.semver}}
 
       # patch if in uat|prod env and deploy from specific branch
       - if: ${{ github.ref_name != 'main' && (env.ENVIRONMENT == 'uat' || env.ENVIRONMENT == 'prod') }}
