@@ -25,8 +25,9 @@ import java.util.logging.Logger;
 import java.util.stream.Collectors;
 
 public class UpdateTaxonomy {
-    private UpdateTaxonomy(){
+    private UpdateTaxonomy() {
     }
+
     private static String msg = null;
     private static final String JSON_NAME = System.getenv("JSON_NAME");
     private static final String CSV_NAME = System.getenv("CSV_NAME");
@@ -38,29 +39,30 @@ public class UpdateTaxonomy {
     private static BlobContainerClient blobContainerClientInput;
     private static BlobContainerClient blobContainerClientOutput;
     private static BlobServiceClient blobServiceClient;
-    private static BlobServiceClient getBlobServiceClient(){
-        if(blobServiceClient == null){
+
+    private static BlobServiceClient getBlobServiceClient() {
+        if (blobServiceClient == null) {
             blobServiceClient = new BlobServiceClientBuilder().connectionString(STORAGE_ACCOUNT_CONN_STRING).buildClient();
         }
         return blobServiceClient;
     }
 
-    private static BlobContainerClient getBlobContainerClientInput(){
-        if(blobContainerClientInput == null){
+    private static BlobContainerClient getBlobContainerClientInput() {
+        if (blobContainerClientInput == null) {
             blobContainerClientInput = getBlobServiceClient().createBlobContainerIfNotExists(BLOB_CONTAINER_NAME_INPUT);
         }
         return blobContainerClientInput;
     }
 
-    private static BlobContainerClient getBlobContainerClientOutput(){
-        if(blobContainerClientOutput == null){
+    private static BlobContainerClient getBlobContainerClientOutput() {
+        if (blobContainerClientOutput == null) {
             blobContainerClientOutput = getBlobServiceClient().createBlobContainerIfNotExists(BLOB_CONTAINER_NAME_OUTPUT);
         }
         return blobContainerClientOutput;
     }
 
-    private static ObjectMapper getObjectMapper(){
-        if(objectMapper == null){
+    private static ObjectMapper getObjectMapper() {
+        if (objectMapper == null) {
             objectMapper = new ObjectMapper();
             objectMapper.registerModule(new JavaTimeModule());
         }
@@ -73,13 +75,14 @@ public class UpdateTaxonomy {
         }
         return modelMapper;
     }
+
     public static void updateTaxonomy(Logger logger) {
         try {
-            msg= MessageFormat.format("Download csv file [{0}] from blob at [{1}]", CSV_NAME, Instant.now());
+            msg = MessageFormat.format("Download csv file [{0}] from blob at [{1}]", CSV_NAME, Instant.now());
             logger.info(msg);
             InputStreamReader inputStreamReader = new InputStreamReader(getBlobContainerClientInput().getBlobClient(CSV_NAME).downloadContent().toStream(), StandardCharsets.UTF_8);
 
-            msg=MessageFormat.format("Converting [{0}] into [{1}]",CSV_NAME,JSON_NAME);
+            msg = MessageFormat.format("Converting [{0}] into [{1}]", CSV_NAME, JSON_NAME);
             logger.info(msg);
             List<TaxonomyCsv> taxonomyCsvList = new CsvToBeanBuilder<TaxonomyCsv>(inputStreamReader)
                     .withSeparator(';')
@@ -101,7 +104,7 @@ public class UpdateTaxonomy {
 
             byte[] jsonBytes = getObjectMapper().writeValueAsBytes(taxonomyJson);
 
-            msg=MessageFormat.format("Uploading json id = [{0}] created at: [{1}]",id,now);
+            msg = MessageFormat.format("Uploading json id = [{0}] created at: [{1}]", id, now);
             logger.info(msg);
             getBlobContainerClientOutput().getBlobClient(JSON_NAME).upload(BinaryData.fromBytes(jsonBytes), true);
 
