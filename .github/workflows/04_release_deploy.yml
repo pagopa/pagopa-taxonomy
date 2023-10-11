@@ -113,7 +113,7 @@ jobs:
         run: |
           echo "❌ UAT and PROD accept only \"patch\" or \"promote\""
           exit 1
-          
+
       - if: ${{ github.event.pull_request.merged && contains(github.event.pull_request.labels.*.name, 'ignore-for-release') }}
         run: echo "SEMVER=skip" >> $GITHUB_ENV
 
@@ -175,7 +175,7 @@ jobs:
   release:
     name: Create a New Release
     runs-on: ubuntu-latest
-    needs: [setup]
+    needs: [ setup ]
     outputs:
       version: ${{ steps.release.outputs.version }}
     steps:
