@@ -13,7 +13,7 @@ import java.util.Optional;
 
 public class AppUtil {
 
-    public static<T> String getPayload(ObjectMapper objectMapper, T payload){
+    public static <T> String getPayload(ObjectMapper objectMapper, T payload) {
         try {
             return objectMapper.writeValueAsString(payload);
         } catch (JsonProcessingException e) {
@@ -24,6 +24,7 @@ public class AppUtil {
     public static <T> HttpResponseMessage writeResponse(HttpRequestMessage<Optional<String>> request, HttpStatus httpStatus, String payload) {
         return writeResponseWithHeaders(request, httpStatus, payload, new LinkedHashMap<>());
     }
+
     public static HttpResponseMessage writeResponseWithHeaders(HttpRequestMessage<Optional<String>> request, HttpStatus httpStatus, String payload, Map<String, String> headers) {
         HttpResponseMessage.Builder responseBuilder = request.createResponseBuilder(httpStatus);
         responseBuilder.header("Content-Type", MediaType.APPLICATION_JSON);

@@ -13,20 +13,21 @@ import java.util.Optional;
  */
 public class Info {
 
-	/**
-	 * This function will be invoked when a Http Trigger occurs
-	 * @return
-	 */
-	@FunctionName("FnHttpInfo")
-	public HttpResponseMessage run (
-			@HttpTrigger(name = "FnHttpInfoTrigger",
-			methods = {HttpMethod.GET},
-			route = "info",
-			authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
-			final ExecutionContext context) {
+    /**
+     * This function will be invoked when a Http Trigger occurs
+     *
+     * @return
+     */
+    @FunctionName("FnHttpInfo")
+    public HttpResponseMessage run(
+            @HttpTrigger(name = "FnHttpInfoTrigger",
+                    methods = {HttpMethod.GET},
+                    route = "info",
+                    authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
+            final ExecutionContext context) {
 
-		return request.createResponseBuilder(HttpStatus.OK).build();
-	}
+        return request.createResponseBuilder(HttpStatus.OK).build();
+    }
 
 
 }
