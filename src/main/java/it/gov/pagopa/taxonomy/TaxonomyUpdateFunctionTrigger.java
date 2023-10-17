@@ -12,26 +12,26 @@ import java.util.logging.Level;
 import java.util.logging.Logger;
 
 public class TaxonomyUpdateFunctionTrigger {
-  @FunctionName("FnBlobTriggerGenerate")
-  public void run(
-          @BlobTrigger(name = "file",
-                  dataType = "binary",
-                  path = "%BLOB_CONTAINER_NAME_INPUT%/%CSV_NAME%",
-                  connection = "STORAGE_ACCOUNT_CONN_STRING") byte[] content,
-          final ExecutionContext context
-  ) {
-    Logger logger = context.getLogger();
+    @FunctionName("FnBlobTriggerGenerate")
+    public void run(
+            @BlobTrigger(name = "file",
+                    dataType = "binary",
+                    path = "%BLOB_CONTAINER_NAME_INPUT%/%CSV_NAME%",
+                    connection = "STORAGE_ACCOUNT_CONN_STRING") byte[] content,
+            final ExecutionContext context
+    ) {
+        Logger logger = context.getLogger();
 
-    try {
-      UpdateTaxonomy.updateTaxonomy(logger);
-      logger.info("Taxonomy updated successfully");
+        try {
+            UpdateTaxonomy.updateTaxonomy(logger);
+            logger.info("Taxonomy updated successfully");
 
-    } catch (AppException e) {
-      logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Update-Triggered] AppException at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
+        } catch (AppException e) {
+            logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Update-Triggered] AppException at {0}\n {1}", Instant.now(), ExceptionUtils.getStackTrace(e)));
 
-    } catch (Exception e) {
-      logger.log(Level.SEVERE,MessageFormat.format("[ALERT][Update-Triggered] Generic error at {0}\n {1}",Instant.now(), ExceptionUtils.getStackTrace(e)));
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, MessageFormat.format("[ALERT][Update-Triggered] Generic error at {0}\n {1}", Instant.now(), ExceptionUtils.getStackTrace(e)));
 
+        }
     }
-  }
 }

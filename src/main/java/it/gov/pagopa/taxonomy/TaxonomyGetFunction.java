@@ -199,7 +199,7 @@ public class TaxonomyGetFunction {
 
     private static TaxonomyJson getTaxonomy(Logger logger) {
         try {
-            msg=MessageFormat.format("Retrieving the json file from the blob storage at: [{0}]", Instant.now());
+            msg = MessageFormat.format("Retrieving the json file from the blob storage at: [{0}]", Instant.now());
             logger.info(msg);
             String content = getBlobContainerClientOutput()
                     .getBlobClient(JSON_NAME)
@@ -230,19 +230,21 @@ public class TaxonomyGetFunction {
     private static String generatePayload(Logger logger, String version, TaxonomyJson taxonomyJson) {
         String payload = null;
         if (version.equalsIgnoreCase(VersionEnum.STANDARD.toString())) {
-            msg=MessageFormat.format("Versioning json id = [{0}] to the {1} version", taxonomyJson.getUuid(), VersionEnum.STANDARD);
+            msg = MessageFormat.format("Versioning json id = [{0}] to the {1} version", taxonomyJson.getUuid(), VersionEnum.STANDARD);
             logger.info(msg);
-            List<TaxonomyStandard> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
+            List<TaxonomyStandard> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {
+            });
             payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
-            msg=MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.STANDARD);
+            msg = MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.STANDARD);
             logger.info(msg);
         } else if (version.equalsIgnoreCase(VersionEnum.TOPICFLAG.toString())) {
-            msg=MessageFormat.format("Versioning json id = [{0}] to the {1} version", taxonomyJson.getUuid(), VersionEnum.TOPICFLAG);
+            msg = MessageFormat.format("Versioning json id = [{0}] to the {1} version", taxonomyJson.getUuid(), VersionEnum.TOPICFLAG);
             logger.info(msg);
 
-            List<TaxonomyTopicFlag> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {});
+            List<TaxonomyTopicFlag> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {
+            });
             payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
-            msg=MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.TOPICFLAG);
+            msg = MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.TOPICFLAG);
             logger.info(msg);
         }
         return payload;

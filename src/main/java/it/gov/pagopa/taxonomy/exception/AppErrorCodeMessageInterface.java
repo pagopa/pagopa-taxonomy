@@ -4,11 +4,10 @@ package it.gov.pagopa.taxonomy.exception;
 import jakarta.ws.rs.core.Response;
 
 
-
 public interface AppErrorCodeMessageInterface {
-  String errorCode();
+    String errorCode();
 
-  String message(Object... args);
+    String message(Object... args);
 
-  Response.Status httpStatus();
+    Response.Status httpStatus();
 }

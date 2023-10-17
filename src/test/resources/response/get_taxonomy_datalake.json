@@ -1,17 +1,17 @@
- {
-  "CODICE TIPO ENTE CREDITORE" : "1",
-  "TIPO ENTE CREDITORE" : "COMUNE/UNIONE DI COMUNI / CONSORZI",
-  "PROGRESSIVO MACRO AREA PER ENTE CREDITORE" : "2",
-  "NOME MACRO AREA" : "CORPO DI POLIZIA LOCALE",
-  "DESCRIZIONE MACRO AREA" : "Entrate extratributarie derivanti dal controllo e dalla repressione delle irregolarità e degli illeciti.",
-  "CODICE TIPOLOGIA SERVIZIO" : "100",
-  "TIPO SERVIZIO" : "Multe / Verbali di Contravvenzione",
-  "MOTIVO GIURIDICO DELLA RISCOSSIONE" : "SA",
-  "DESCRIZIONE TIPO SERVIZIO" : "Violazione delle regole prescritte dal codice della strada / Verbali di Contravvenzione",
-  "VERSIONE TASSONOMIA" : "31",
-  "DATI SPECIFICI INCASSO" : "9/0102100SA/",
-  "DATA INIZIO VALIDITA" : "01/01/1900",
-  "DATA FINE VALIDITA" : "01/01/2080",
-  "COMBINAZIONE TOPIC E SUBTOPIC" : "Mobilità e trasporti + Altro",
-  "FLAG NUOVA COMBINAZIONE" : "1"
- }
+{
+  "CODICE TIPO ENTE CREDITORE": "1",
+  "TIPO ENTE CREDITORE": "COMUNE/UNIONE DI COMUNI / CONSORZI",
+  "PROGRESSIVO MACRO AREA PER ENTE CREDITORE": "2",
+  "NOME MACRO AREA": "CORPO DI POLIZIA LOCALE",
+  "DESCRIZIONE MACRO AREA": "Entrate extratributarie derivanti dal controllo e dalla repressione delle irregolarità e degli illeciti.",
+  "CODICE TIPOLOGIA SERVIZIO": "100",
+  "TIPO SERVIZIO": "Multe / Verbali di Contravvenzione",
+  "MOTIVO GIURIDICO DELLA RISCOSSIONE": "SA",
+  "DESCRIZIONE TIPO SERVIZIO": "Violazione delle regole prescritte dal codice della strada / Verbali di Contravvenzione",
+  "VERSIONE TASSONOMIA": "31",
+  "DATI SPECIFICI INCASSO": "9/0102100SA/",
+  "DATA INIZIO VALIDITA": "01/01/1900",
+  "DATA FINE VALIDITA": "01/01/2080",
+  "COMBINAZIONE TOPIC E SUBTOPIC": "Mobilità e trasporti + Altro",
+  "FLAG NUOVA COMBINAZIONE": "1"
+}
