@@ -9,10 +9,15 @@ import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
-import com.microsoft.azure.functions.*;
+import com.microsoft.azure.functions.ExecutionContext;
+import com.microsoft.azure.functions.HttpMethod;
+import com.microsoft.azure.functions.HttpRequestMessage;
+import com.microsoft.azure.functions.HttpResponseMessage;
+import com.microsoft.azure.functions.HttpStatus;
 import com.microsoft.azure.functions.annotation.AuthorizationLevel;
 import com.microsoft.azure.functions.annotation.FunctionName;
 import com.microsoft.azure.functions.annotation.HttpTrigger;
+import it.gov.pagopa.taxonomy.enums.ExtensionEnum;
 import it.gov.pagopa.taxonomy.enums.VersionEnum;
 import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
@@ -23,8 +28,8 @@ import it.gov.pagopa.taxonomy.model.json.TaxonomyTopicFlag;
 import it.gov.pagopa.taxonomy.util.AppConstant;
 import it.gov.pagopa.taxonomy.util.AppMessageUtil;
 import it.gov.pagopa.taxonomy.util.AppUtil;
-import org.apache.commons.lang3.exception.ExceptionUtils;
-
+import java.io.IOException;
+import java.io.InputStream;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.LinkedHashMap;
@@ -33,17 +38,22 @@ import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
 import java.util.logging.Logger;
+import org.apache.commons.lang3.exception.ExceptionUtils;
 
 public class TaxonomyGetFunction {
 
     private static String msg = null;
     private static final String VERSION_NOT_EXISTS_ERROR = AppMessageUtil.getMessage("version.not.exists.error");
+    private static final String EXTENSION_NOT_EXISTS_ERROR = AppMessageUtil.getMessage("extension.not.exists.error");
     private static final String GENERIC_RETRIEVAL_ERROR = AppMessageUtil.getMessage("generic.retrieval.error");
     private static final String STORAGE_CONN_STRING = System.getenv("STORAGE_ACCOUNT_CONN_STRING");
     private static final String BLOB_CONTAINER_NAME_OUTPUT = System.getenv("BLOB_CONTAINER_NAME_OUTPUT");
+    private static final String BLOB_CONTAINER_NAME_INPUT = System.getenv("BLOB_CONTAINER_NAME_INPUT");
     private static final String JSON_NAME = System.getenv("JSON_NAME");
+    private static final String CSV_NAME = System.getenv("CSV_NAME");
     private static ObjectMapper objectMapper = null;
     private static BlobContainerClient blobContainerClientOutput;
+    private static BlobContainerClient blobContainerClientInput;
     private static BlobServiceClient blobServiceClient;
 
     private static BlobServiceClient getBlobServiceClient(){
@@ -59,6 +69,12 @@ public class TaxonomyGetFunction {
         }
         return blobContainerClientOutput;
     }
+    private static BlobContainerClient getBlobContainerClientInput(){
+        if(blobContainerClientInput == null){
+            blobContainerClientInput = getBlobServiceClient().createBlobContainerIfNotExists(BLOB_CONTAINER_NAME_INPUT);
+        }
+        return blobContainerClientInput;
+    }
 
     private static ObjectMapper getObjectMapper(){
         if(objectMapper == null){
@@ -73,7 +89,7 @@ public class TaxonomyGetFunction {
             @HttpTrigger(
                     name = "FnHttpGetTrigger",
                     methods = {HttpMethod.GET},
-                    route = "taxonomy/{version?}",
+                    route = "taxonomy",
                     authLevel = AuthorizationLevel.ANONYMOUS) HttpRequestMessage<Optional<String>> request,
             final ExecutionContext context) {
         Logger logger = context.getLogger();
@@ -81,7 +97,7 @@ public class TaxonomyGetFunction {
         try {
             Map<String, String> queryParams = request.getQueryParameters();
             String version = queryParams.getOrDefault("version", VersionEnum.STANDARD.toString());
-
+            String extension = queryParams.getOrDefault("extension", ExtensionEnum.JSON.toString());
             if(!version.equalsIgnoreCase(VersionEnum.STANDARD.toString()) &&
                     !version.equalsIgnoreCase(VersionEnum.TOPICFLAG.toString())) {
 
@@ -94,6 +110,28 @@ public class TaxonomyGetFunction {
                 return AppUtil.writeResponse(request,
                         HttpStatus.BAD_REQUEST,
                         payload);
+            }
+
+            if(!extension.equalsIgnoreCase(ExtensionEnum.JSON.toString()) &&
+                !extension.equalsIgnoreCase(ExtensionEnum.CSV.toString())) {
+
+                logger.info(EXTENSION_NOT_EXISTS_ERROR);
+                String payload = AppUtil.getPayload(getObjectMapper(), ErrorMessage.builder()
+                    .message(AppMessageUtil.getMessage(GENERIC_RETRIEVAL_ERROR))
+                    .error(EXTENSION_NOT_EXISTS_ERROR)
+                    .build());
+
+                return AppUtil.writeResponse(request,
+                    HttpStatus.BAD_REQUEST,
+                    payload);
+            }
+            if(extension.equalsIgnoreCase("CSV")) {
+                byte[] taxonomyCsv = getTaxonomyCsv(logger);
+                HttpResponseMessage.Builder response = request.createResponseBuilder(HttpStatus.OK)
+                    .header("Content-Type", "text/csv; charset=utf-8")
+                    .header("Content-Disposition", "attachment;filename=taxonomy.csv")
+                    .body(taxonomyCsv);
+                return response.build();
             }
 
             TaxonomyJson taxonomyJson = getTaxonomy(logger);
@@ -171,6 +209,21 @@ public class TaxonomyGetFunction {
         } catch (JsonProcessingException parsingException) {
             logger.info("An AppException has occurred");
             throw new AppException(parsingException, AppErrorCodeMessageEnum.JSON_PARSING_ERROR);
+        }
+    }
+    private static byte[] getTaxonomyCsv(Logger logger) {
+        try {
+            msg=MessageFormat.format("Retrieving the csv file from the blob storage at: [{0}]", Instant.now());
+            logger.info(msg);
+            InputStream blobStream = getBlobContainerClientInput()
+                .getBlobClient(CSV_NAME)
+                .openInputStream();
+            byte[] byteArray = blobStream.readAllBytes();
+            blobStream.close();
+            return byteArray;
+        } catch (IOException ioException) {
+            logger.info("An AppException has occurred while parsing CSV file into byte array");
+            throw new AppException(ioException, AppErrorCodeMessageEnum.ERROR);
         }
     }
 
