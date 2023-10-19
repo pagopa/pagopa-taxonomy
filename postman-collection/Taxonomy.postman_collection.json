@@ -10,13 +10,7 @@
 			"name": "Generate",
 			"request": {
 				"method": "GET",
-				"header": [
-					{
-						"key": "Ocp-Apim-Subscription-Key",
-						"value": "0b82eb24a5ce441d9a65e3d8b62a2574",
-						"type": "text"
-					}
-				],
+				"header": [],
 				"url": {
 					"raw": "{{host_config}}/generate",
 					"host": [
@@ -33,13 +27,7 @@
 			"name": "GET Taxonomy",
 			"request": {
 				"method": "GET",
-				"header": [
-					{
-						"key": "Ocp-Apim-Subscription-Key",
-						"value": "0b82eb24a5ce441d9a65e3d8b62a2574",
-						"type": "text"
-					}
-				],
+				"header": [],
 				"url": {
 					"raw": "{{host_config}}/taxonomy",
 					"host": [
@@ -56,13 +44,7 @@
 			"name": "GET Taxonomy TopicFlag",
 			"request": {
 				"method": "GET",
-				"header": [
-					{
-						"key": "Ocp-Apim-Subscription-Key",
-						"value": "0b82eb24a5ce441d9a65e3d8b62a2574",
-						"type": "text"
-					}
-				],
+				"header": [],
 				"url": {
 					"raw": "{{host_config}}/taxonomy?version=topicflag",
 					"host": [
@@ -76,6 +58,46 @@
 							"key": "version",
 							"value": "topicflag"
 						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "GET Taxonomy CSV",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host_config}}/taxonomy?extension=csv",
+					"host": [
+						"{{host_config}}"
+					],
+					"path": [
+						"taxonomy"
+					],
+					"query": [
+						{
+							"key": "extension",
+							"value": "csv"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Healthcheck",
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{host_config}}/info",
+					"host": [
+						"{{host_config}}"
+					],
+					"path": [
+						"info"
 					]
 				}
 			},
