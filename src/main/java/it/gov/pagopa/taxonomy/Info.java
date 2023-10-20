@@ -42,7 +42,7 @@ public class Info {
             appVersion = properties.getProperty("app.version");
             appName = properties.getProperty("app.name");
         } catch (Exception e) {
-            logger.log(Level.SEVERE, MessageFormat.format("Could not read app.properties at {0}\n {1}",
+            logger.log(Level.INFO, MessageFormat.format("Could not read app.properties at {0}\n {1}",
                 Instant.now(), ExceptionUtils.getStackTrace(e)));
         }
         if(!appVersion.isEmpty() && appVersion != null && !appName.isEmpty() && appName != null) {
