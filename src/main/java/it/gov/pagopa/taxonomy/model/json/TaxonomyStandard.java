@@ -13,6 +13,6 @@ import lombok.experimental.SuperBuilder;
 @Setter
 @NoArgsConstructor
 @JsonInclude(Include.NON_NULL)
-@JsonIgnoreProperties({"COMBINAZIONE TOPIC E SUBTOPIC", "FLAG NUOVA COMBINAZIONE"})
+@JsonIgnoreProperties({"COMBINAZIONE TOPIC E SUBTOPIC"})
 public class TaxonomyStandard extends Taxonomy {
 }

@@ -5,6 +5,8 @@
     "input_container_name": "input",
     "output_container_name": "output",
     "csv_blob_name": "taxonomy.csv",
-    "json_blob_name": "taxonomy.json"
+    "json_blob_name": "taxonomy.json",
+    "taxonomy_csv_example": "codice_tipo_ente_creditore;tipo_ente_creditore;progressivo_macro_area_per_ente_creditore;nome_macro_area;descrizione_macro_area;codice_tipologia_servizio;tipo_servizio;motivo_giuridico_della_riscossione;descrizione_tipo_servizio;versione_tassonomia;dati_specifici_di_incasso;data_inizio_validita;data_fine_validita;combinazione_topic_subtopic\n05;SERVIZIO SANITARIO NAZIONALE;01;SERVIZIO SANITARIO NAZIONALE;I servizi sanitari sono quelli di assistenza sanitaria a tutela della salute della popolazione e degli animali. Tali servizi vengono erogati dalle ASL e dagli Ospedali, che a loro volta si distinguono in Presidi ospedalieri e Aziende ospedaliere.;153;incassi servizi sociali;SP;pagamento servizi rivolti a Persone non autosufficienti o portatrici di particolari patologie e disabilità;36;9/0501153SP/;07/03/2023;01/01/2080;Benessere sociale + Altro",
+    "force_taxomy_example": false
   }
 }

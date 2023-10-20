@@ -1,4 +1,4 @@
-Feature: Taxonomy
+Feature: Taxonomy KO
 
   Scenario: No CSV file in the storage when trying to generate taxonomy
     Given the infrastructure is up and running
