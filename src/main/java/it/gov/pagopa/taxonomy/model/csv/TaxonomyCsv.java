@@ -12,34 +12,32 @@ import lombok.Setter;
 @NoArgsConstructor
 @AllArgsConstructor
 public class TaxonomyCsv {
-    @CsvBindByName(column = "CODICE TIPO ENTE CREDITORE", required = true)
+    @CsvBindByName(column = "codice_tipo_ente_creditore", required = true)
     private String creditorEntityTypeCode;
-    @CsvBindByName(column = "TIPO ENTE CREDITORE", required = true)
+    @CsvBindByName(column = "tipo_ente_creditore", required = true)
     private String creditorEntityType;
-    @CsvBindByName(column = "# Progressivo Macro Area per Ente Creditore", required = true)
+    @CsvBindByName(column = "progressivo_macro_area_per_ente_creditore", required = true)
     private String creditorEntityMacroAreaProgressive;
-    @CsvBindByName(column = "NOME MACRO AREA", required = true)
+    @CsvBindByName(column = "nome_macro_area", required = true)
     private String macroAreaName;
-    @CsvBindByName(column = "DESCRIZIONE MACRO AREA", required = true)
+    @CsvBindByName(column = "descrizione_macro_area", required = true)
     private String macroAreaDescription;
-    @CsvBindByName(column = "CODICE TIPOLOGIA SERVIZIO", required = true)
+    @CsvBindByName(column = "codice_tipologia_servizio", required = true)
     private String serviceTypologyCode;
-    @CsvBindByName(column = "TIPO SERVIZIO", required = true)
+    @CsvBindByName(column = "tipo_servizio", required = true)
     private String serviceType;
-    @CsvBindByName(column = "Motivo Giuridico della riscossione", required = true)
+    @CsvBindByName(column = "motivo_giuridico_della_riscossione", required = true)
     private String legalBasisOfCollection;
-    @CsvBindByName(column = "DESCRIZIONE TIPO SERVIZIO", required = true)
+    @CsvBindByName(column = "descrizione_tipo_servizio", required = true)
     private String serviceTypeDescription;
-    @CsvBindByName(column = "# VERSIONE TASSONOMIA", required = true)
+    @CsvBindByName(column = "versione_tassonomia", required = true)
     private String taxonomyVersion;
-    @CsvBindByName(column = "DATI SPECIFICI DI INCASSO", required = true)
+    @CsvBindByName(column = "dati_specifici_di_incasso", required = true)
     private String specificCollectionData;
-    @CsvBindByName(column = "DATA INIZIO VALIDITA (mm/gg/aaaa)", required = true)
+    @CsvBindByName(column = "data_inizio_validita", required = true)
     private String validityStartDate;
-    @CsvBindByName(column = "DATA FINE VALIDITA (mm/gg/aaaa)", required = true)
+    @CsvBindByName(column = "data_fine_validita", required = true)
     private String validityEndDate;
-    @CsvBindByName(column = "combinazione topic&subtopic", required = true)
+    @CsvBindByName(column = "combinazione_topic_subtopic", required = true)
     private String topicSubtopicCombination;
-    @CsvBindByName(column = "Flag_Nuova_Combinazione", required = true)
-    private String newCombinationFlag;
 }

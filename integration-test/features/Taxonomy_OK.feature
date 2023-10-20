@@ -1,4 +1,4 @@
-Feature: Taxonomy
+Feature: Taxonomy OK
 
   Scenario: Generate Taxonomy JSON
     Given the infrastructure is up and running

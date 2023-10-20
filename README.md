@@ -1,10 +1,15 @@
 # pagoPA Functions taxonomy
 
-Java Taxonomy Azure Function.
-This function has the role of converting a CSV file to JSON and retrieve it from a blob storage whenever needed.
+Taxonomy Azure Function.
+This function has the role of converting a CSV file to JSON and then to retrieve it from a blob storage whenever needed.
 
 [![Quality Gate Status](https://sonarcloud.io/api/project_badges/measure?project=pagopa_pagopa-taxonomy&metric=alert_status)](https://sonarcloud.io/project/overview?id=pagopa_pagopa-taxonomy)
 
+---
+
+## Api Documentation 📖
+
+Check out the [OpenApi 3 here](https://editor.swagger.io/?url=https://raw.githubusercontent.com/pagopa/pagopa-taxonomy/main/openapi/openapi.json)
 
 ---
 
