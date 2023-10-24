@@ -11,7 +11,8 @@ import com.opencsv.bean.CsvToBeanBuilder;
 import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.csv.TaxonomyCsv;
-import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
+import it.gov.pagopa.taxonomy.model.json.TaxonomyMetadata;
+import it.gov.pagopa.taxonomy.model.json.TaxonomyStandard;
 import it.gov.pagopa.taxonomy.model.json.TaxonomyTopicFlag;
 import org.modelmapper.ModelMapper;
 
@@ -78,11 +79,13 @@ public class UpdateTaxonomy {
 
     public static void updateTaxonomy(Logger logger) {
         try {
+            final String STANDARD_JSON_NAME = JSON_NAME.split("\\.")[0]+"_standard.json";
+            final String TOPIC_JSON_NAME = JSON_NAME.split("\\.")[0]+"_topic.json";
             msg = MessageFormat.format("Download csv file [{0}] from blob at [{1}]", CSV_NAME, Instant.now());
             logger.info(msg);
             InputStreamReader inputStreamReader = new InputStreamReader(getBlobContainerClientInput().getBlobClient(CSV_NAME).downloadContent().toStream(), StandardCharsets.UTF_8);
 
-            msg = MessageFormat.format("Converting [{0}] into [{1}]", CSV_NAME, JSON_NAME);
+            msg = MessageFormat.format("Converting [{0}] into JSON", CSV_NAME);
             logger.info(msg);
             List<TaxonomyCsv> taxonomyCsvList = new CsvToBeanBuilder<TaxonomyCsv>(inputStreamReader)
                     .withSeparator(';')
@@ -94,19 +97,31 @@ public class UpdateTaxonomy {
             Instant now = Instant.now();
             String id = UUID.randomUUID().toString();
 
-            TaxonomyJson taxonomyJson = TaxonomyJson.builder()
+            TaxonomyMetadata taxonomyMetadata = TaxonomyMetadata.builder()
                     .uuid(id)
                     .created(now)
-                    .taxonomyList(taxonomyCsvList.stream().map(taxonomyCsv ->
-                            getModelMapper().map(taxonomyCsv, TaxonomyTopicFlag.class)
-                    ).collect(Collectors.toList()))
                     .build();
 
-            byte[] jsonBytes = getObjectMapper().writeValueAsBytes(taxonomyJson);
-
-            msg = MessageFormat.format("Uploading json id = [{0}] created at: [{1}]", id, now);
+            msg = MessageFormat.format("Uploading metadata json id = [{0}] created at: [{1}]", id, now);
             logger.info(msg);
-            getBlobContainerClientOutput().getBlobClient(JSON_NAME).upload(BinaryData.fromBytes(jsonBytes), true);
+            byte[] jsonBytesMetadata = getObjectMapper().writeValueAsBytes(taxonomyMetadata);
+            getBlobContainerClientOutput().getBlobClient("taxonomy_metadata.json").upload(BinaryData.fromBytes(jsonBytesMetadata), true);
+
+            msg = MessageFormat.format("Uploading standard json id = [{0}] created at: [{1}]", id, now);
+            List<TaxonomyStandard> taxonomyStandardJson = taxonomyCsvList
+                .stream().map(taxonomyCsv -> getModelMapper().map(taxonomyCsv, TaxonomyStandard.class)
+                ).collect(Collectors.toList());
+            byte[] jsonBytesStandard = getObjectMapper().writeValueAsBytes(taxonomyStandardJson);
+            logger.info(msg);
+            getBlobContainerClientOutput().getBlobClient(STANDARD_JSON_NAME).upload(BinaryData.fromBytes(jsonBytesStandard), true);
+
+            msg = MessageFormat.format("Uploading topic json id = [{0}] created at: [{1}]", id, now);
+            List<TaxonomyTopicFlag> taxonomyTopicFlagJson = taxonomyCsvList
+                .stream().map(taxonomyCsv -> getModelMapper().map(taxonomyCsv, TaxonomyTopicFlag.class)
+                ).collect(Collectors.toList());
+            byte[] jsonBytes = getObjectMapper().writeValueAsBytes(taxonomyTopicFlagJson);
+            logger.info(msg);
+            getBlobContainerClientOutput().getBlobClient(TOPIC_JSON_NAME).upload(BinaryData.fromBytes(jsonBytes), true);
 
         } catch (JsonProcessingException | IllegalStateException parsingException) {
             logger.info("An AppException has occurred");
