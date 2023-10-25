@@ -213,14 +213,13 @@ public class TaxonomyGetFunction {
         final String TOPIC_JSON_NAME = JSON_NAME.split("\\.")[0]+"_topic.json";
         msg = MessageFormat.format("Retrieving the {0} json file from the blob storage at: [{1}]", version, Instant.now());
         logger.info(msg);
-        String JSON_FILE = STANDARD_JSON_NAME;
+        String jsonFile = STANDARD_JSON_NAME;
         if(version.equalsIgnoreCase("topicflag"))
-            JSON_FILE = TOPIC_JSON_NAME;
-        String content = getBlobContainerClientOutput()
-            .getBlobClient(JSON_FILE)
+            jsonFile = TOPIC_JSON_NAME;
+        return getBlobContainerClientOutput()
+            .getBlobClient(jsonFile)
             .downloadContent()
             .toString();
-        return content;
     }
     private static byte[] getTaxonomyCsv(Logger logger) {
         try {
