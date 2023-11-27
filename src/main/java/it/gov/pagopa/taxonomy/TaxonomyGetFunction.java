@@ -6,7 +6,6 @@ import com.azure.storage.blob.BlobServiceClientBuilder;
 import com.azure.storage.blob.models.BlobErrorCode;
 import com.azure.storage.blob.models.BlobStorageException;
 import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.core.type.TypeReference;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.datatype.jsr310.JavaTimeModule;
 import com.microsoft.azure.functions.ExecutionContext;
@@ -22,9 +21,7 @@ import it.gov.pagopa.taxonomy.enums.VersionEnum;
 import it.gov.pagopa.taxonomy.exception.AppErrorCodeMessageEnum;
 import it.gov.pagopa.taxonomy.exception.AppException;
 import it.gov.pagopa.taxonomy.model.function.ErrorMessage;
-import it.gov.pagopa.taxonomy.model.json.TaxonomyJson;
-import it.gov.pagopa.taxonomy.model.json.TaxonomyStandard;
-import it.gov.pagopa.taxonomy.model.json.TaxonomyTopicFlag;
+import it.gov.pagopa.taxonomy.model.json.TaxonomyMetadata;
 import it.gov.pagopa.taxonomy.util.AppConstant;
 import it.gov.pagopa.taxonomy.util.AppMessageUtil;
 import it.gov.pagopa.taxonomy.util.AppUtil;
@@ -33,7 +30,6 @@ import java.io.InputStream;
 import java.text.MessageFormat;
 import java.time.Instant;
 import java.util.LinkedHashMap;
-import java.util.List;
 import java.util.Map;
 import java.util.Optional;
 import java.util.logging.Level;
@@ -125,6 +121,7 @@ public class TaxonomyGetFunction {
                     HttpStatus.BAD_REQUEST,
                     payload);
             }
+
             if(extension.equalsIgnoreCase("CSV")) {
                 byte[] taxonomyCsv = getTaxonomyCsv(logger);
                 HttpResponseMessage.Builder response = request.createResponseBuilder(HttpStatus.OK)
@@ -134,18 +131,17 @@ public class TaxonomyGetFunction {
                 return response.build();
             }
 
-            TaxonomyJson taxonomyJson = getTaxonomy(logger);
+            String taxonomyJson = getTaxonomyList(logger, version);
+            TaxonomyMetadata taxonomyMetadata = getMetadata(logger);
 
             Map<String, String> map = new LinkedHashMap<>();
-            map.put(AppConstant.RESPONSE_HEADER_UUID, taxonomyJson.getUuid());
-            map.put(AppConstant.RESPONSE_HEADER_CREATED, taxonomyJson.getCreated().toString());
+            map.put(AppConstant.RESPONSE_HEADER_UUID, taxonomyMetadata.getUuid());
+            map.put(AppConstant.RESPONSE_HEADER_CREATED, taxonomyMetadata.getCreated().toString());
             map.put(AppConstant.RESPONSE_HEADER_VERSION, version);
-
-            String payload = generatePayload(logger, version, taxonomyJson);
 
             return AppUtil.writeResponseWithHeaders(request,
                     HttpStatus.OK,
-                    payload,
+                    taxonomyJson,
                     map);
 
         } catch (AppException e) {
@@ -197,19 +193,33 @@ public class TaxonomyGetFunction {
         }
     }
 
-    private static TaxonomyJson getTaxonomy(Logger logger) {
-        try {
-            msg = MessageFormat.format("Retrieving the json file from the blob storage at: [{0}]", Instant.now());
+    private static TaxonomyMetadata getMetadata(Logger logger) {
+       try {
+            msg = MessageFormat.format("Retrieving the metadata json file from the blob storage at: [{0}]", Instant.now());
             logger.info(msg);
             String content = getBlobContainerClientOutput()
-                    .getBlobClient(JSON_NAME)
-                    .downloadContent()
-                    .toString();
-            return getObjectMapper().readValue(content, TaxonomyJson.class);
-        } catch (JsonProcessingException parsingException) {
+                .getBlobClient("taxonomy_metadata.json")
+                .downloadContent()
+                .toString();
+            return getObjectMapper().readValue(content, TaxonomyMetadata.class);
+        } catch (JsonProcessingException exception) {
             logger.info("An AppException has occurred");
-            throw new AppException(parsingException, AppErrorCodeMessageEnum.JSON_PARSING_ERROR);
+            logger.info("Problem mapping Metadata Object from JSON file");
+            throw new AppException(exception, AppErrorCodeMessageEnum.JSON_PARSING_ERROR);
         }
+    }
+    private static String getTaxonomyList(Logger logger, String version) {
+        final String STANDARD_JSON_NAME = JSON_NAME.split("\\.")[0]+"_standard.json";
+        final String TOPIC_JSON_NAME = JSON_NAME.split("\\.")[0]+"_topic.json";
+        msg = MessageFormat.format("Retrieving the {0} json file from the blob storage at: [{1}]", version, Instant.now());
+        logger.info(msg);
+        String jsonFile = STANDARD_JSON_NAME;
+        if(version.equalsIgnoreCase("topicflag"))
+            jsonFile = TOPIC_JSON_NAME;
+        return getBlobContainerClientOutput()
+            .getBlobClient(jsonFile)
+            .downloadContent()
+            .toString();
     }
     private static byte[] getTaxonomyCsv(Logger logger) {
         try {
@@ -227,26 +237,4 @@ public class TaxonomyGetFunction {
         }
     }
 
-    private static String generatePayload(Logger logger, String version, TaxonomyJson taxonomyJson) {
-        String payload = null;
-        if (version.equalsIgnoreCase(VersionEnum.STANDARD.toString())) {
-            msg = MessageFormat.format("Versioning json id = [{0}] to the {1} version", taxonomyJson.getUuid(), VersionEnum.STANDARD);
-            logger.info(msg);
-            List<TaxonomyStandard> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {
-            });
-            payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
-            msg = MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.STANDARD);
-            logger.info(msg);
-        } else if (version.equalsIgnoreCase(VersionEnum.TOPICFLAG.toString())) {
-            msg = MessageFormat.format("Versioning json id = [{0}] to the {1} version", taxonomyJson.getUuid(), VersionEnum.TOPICFLAG);
-            logger.info(msg);
-
-            List<TaxonomyTopicFlag> taxonomyList = getObjectMapper().convertValue(taxonomyJson.getTaxonomyList(), new TypeReference<>() {
-            });
-            payload = AppUtil.getPayload(getObjectMapper(), taxonomyList);
-            msg = MessageFormat.format("{0} taxonomy retrieved successfully", VersionEnum.TOPICFLAG);
-            logger.info(msg);
-        }
-        return payload;
-    }
 }

@@ -5,7 +5,6 @@ import com.fasterxml.jackson.annotation.JsonInclude;
 import lombok.*;
 
 import java.time.Instant;
-import java.util.List;
 
 @Builder
 @Getter
@@ -13,11 +12,9 @@ import java.util.List;
 @NoArgsConstructor
 @AllArgsConstructor
 @JsonInclude(JsonInclude.Include.NON_NULL)
-public class TaxonomyJson {
+public class TaxonomyMetadata {
     private String uuid;
 
     @JsonFormat(shape = JsonFormat.Shape.STRING, pattern = "yyyy-MM-dd'T'HH:mm:ss.SSSXXX", timezone = "UTC")
     private Instant created;
-
-    private List<Taxonomy> taxonomyList;
 }

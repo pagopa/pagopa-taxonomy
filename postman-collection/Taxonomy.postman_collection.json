@@ -87,7 +87,7 @@
 			"response": []
 		},
 		{
-			"name": "Healthcheck",
+			"name": "Info - Healthcheck",
 			"request": {
 				"method": "GET",
 				"header": [],
