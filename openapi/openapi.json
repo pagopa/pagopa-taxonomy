@@ -4,7 +4,7 @@
     "description": "Taxonomy Azure Function. This function has the role of converting a CSV file to JSON and then to retrieve it from a blob storage whenever needed.",
     "termsOfService": "https://www.pagopa.gov.it/",
     "title": "PagoPA Taxonomy",
-    "version": "1.1.1"
+    "version": "1.1.2"
   },
   "servers": [
     {
