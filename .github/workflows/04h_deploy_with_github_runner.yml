@@ -40,7 +40,7 @@ jobs:
           echo resource_group=${{ inputs.resource_group }}
           echo app_name=${{ inputs.app_name }}
           echo registry_image=${{ inputs.registry_image }}
-          
+  
 
   # Starting the Azure Function's staging slot, if deploying in PROD
   start_staging_slot:
@@ -62,7 +62,7 @@ jobs:
           registry_image: ${{ inputs.registry_image }}
 
 
-  # Executing the deploy of the Azure function with the new image
+  # Executing the deployment of the Azure function with the new image
   deploy:
     name: Deploy Azure Function
     runs-on: ubuntu-22.04
