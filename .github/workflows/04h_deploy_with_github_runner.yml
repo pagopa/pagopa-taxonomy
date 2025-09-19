@@ -62,7 +62,7 @@ jobs:
           registry_image: ${{ inputs.registry_image }}
 
 
-  # Executing the deploy of the Azure function with the new image
+  # Executing the deployment of the Azure function with the new image
   deploy:
     name: Deploy Azure Function
     runs-on: ubuntu-22.04
