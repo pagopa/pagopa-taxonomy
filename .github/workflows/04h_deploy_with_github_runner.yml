@@ -1,4 +1,4 @@
-name: Deploy on AKS
+name: Deploy Azure function
 
 on:
   workflow_call:
@@ -7,76 +7,97 @@ on:
         required: true
         description: The name of the environment where to deploy
         type: string
-      branch:
-        required: false
-        default: ${{ github.ref_name }}
+      target:
+        required: true
+        description: The environment target of the job
         type: string
-
-env:
-  APP_NAME: pagopa-${{env.ENV_SHORT}}-weu-shared-txnm-fn
-
+      resource_group:
+        required: true
+        description: The resource group of the function to deploy
+        type: string
+      app_name:
+        required: true
+        description: The name of the function to deploy
+        type: string
+      registry_image:
+        required: true
+        description: The name of the image from container registry to be used
+        type: string
 
 permissions:
   id-token: write
   contents: read
 
 jobs:
-  deploy:
-    runs-on: [ self-hosted-job, "${{ inputs.environment }}" ]
-    name: Deploy on AKS
-    environment: ${{ inputs.environment }}
-    steps:
-      - name: Deploy in ${{ inputs.environment }}
-        uses: pagopa/github-actions-template/aks-deploy@main
-        with:
-          branch: ${{ inputs.branch }}
-          client_id: ${{ secrets.CD_CLIENT_ID }}
-          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
-          tenant_id: ${{ secrets.TENANT_ID }}
-          env: ${{ inputs.environment }}
-          namespace: ${{ vars.NAMESPACE }}
-          cluster_name: ${{ vars.CLUSTER_NAME }}
-          resource_group: ${{ vars.CLUSTER_RESOURCE_GROUP }}
-          app_name: ${{ env.APP_NAME }}
-          helm_upgrade_options: "--debug --set microservice-chart.forceRedeploy=true --set microservice-chart.azure.workloadIdentityClientId=${{vars.WORKLOAD_IDENTITY_ID}}"
-          timeout: '5m0s'
-
-  update_openapi:
-    needs: [ deploy ]
+  show_input:
     runs-on: ubuntu-latest
-    name: Update OpenAPI
-    environment: ${{ inputs.environment }}
+    if: ${{ inputs.target == inputs.environment }}
     steps:
-      - name: Checkout
-        id: checkout
-        # from https://github.com/actions/checkout/commits/main
-        uses: actions/checkout@1f9a0c22da41e6ebfa534300ef656657ea2c6707
-        with:
-          persist-credentials: false
-
-      - name: Setup Terraform
-        # from https://github.com/hashicorp/setup-terraform/commits/main
-        uses: hashicorp/setup-terraform@8feba2b913ea459066180f9cb177f58a881cf146
-        with:
-          terraform_version: ${{ vars.TERRAFORM_VERSION }}
-
-      - name: Login
-        id: login
-        # from https://github.com/Azure/login/commits/master
-        uses: azure/login@92a5484dfaf04ca78a94597f4f19fea633851fa2
-        with:
-          client-id: ${{ secrets.CD_CLIENT_ID }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
-
-      - name: Terraform Apply
-        shell: bash
+      - name: Get input parameters
         run: |
-          cd ./infra
-          export ARM_CLIENT_ID="${{ secrets.CD_CLIENT_ID }}"
-          export ARM_SUBSCRIPTION_ID=$(az account show --query id --output tsv)
-          export ARM_TENANT_ID=$(az account show --query tenantId --output tsv)
-          export ARM_USE_OIDC=true
-          export ARM_ACCESS_KEY=$(az storage account keys list --resource-group io-infra-rg --account-name pagopainfraterraform${{inputs.environment}} --query '[0].value' -o tsv)
-          bash ./terraform.sh init weu-${{ inputs.environment }}
-          bash ./terraform.sh apply weu-${{ inputs.environment }} -auto-approve
+          echo environment=${{ inputs.environment }}
+          echo target=${{ inputs.target }}
+          echo resource_group=${{ inputs.resource_group }}
+          echo app_name=${{ inputs.app_name }}
+          echo registry_image=${{ inputs.registry_image }}
+  
+
+  # Starting the Azure Function's staging slot, if deploying in PROD
+  start_staging_slot:
+    name: Create staging slots
+    runs-on: ubuntu-22.04
+    if: ${{ inputs.target == inputs.environment && inputs.target == 'prod' }}
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+      - name: Create staging slots
+        uses: pagopa/github-actions-template/azure-function-start-staging-slot@a1b72480e9ac555364be0b7ecdcc8f5ab1c89ad9
+        with:
+          branch: ${{ github.ref_name }}
+          client_id: ${{ secrets.CLIENT_ID }}
+          tenant_id: ${{ secrets.TENANT_ID }}
+          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          resource_group: ${{ inputs.resource_group }}
+          app_name: ${{ inputs.app_name }}
+          registry_image: ${{ inputs.registry_image }}
+
+
+  # Executing the deploy of the Azure function with the new image
+  deploy:
+    name: Deploy Azure Function
+    runs-on: ubuntu-22.04
+    needs: [ start_staging_slot ]
+    if: ${{ always() && inputs.target == inputs.environment }}
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+      - name: Deploy Azure Function
+        uses: pagopa/github-actions-template/azure-functions-deploy@a1b72480e9ac555364be0b7ecdcc8f5ab1c89ad9
+        with:
+          branch: ${{ github.ref_name }}
+          client_id: ${{ secrets.CLIENT_ID }}
+          tenant_id: ${{ secrets.TENANT_ID }}
+          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          app_name: ${{ inputs.app_name }}
+          registry_image: ${{ inputs.registry_image }}
+
+
+  # Stopping the Azure Function's staging slot, if deploying in PROD
+  stop_staging_slot:
+    name: Clean staging slots
+    needs: [ start_staging_slot, deploy ]
+    if: ${{ success() || failure() && (inputs.target == inputs.environment && inputs.target == 'prod') }}
+    runs-on: ubuntu-22.04
+    environment:
+      name: ${{ inputs.environment }}
+    steps:
+      - name: Deploy Azure Function
+        uses: pagopa/github-actions-template/azure-function-stop-staging-slot@a1b72480e9ac555364be0b7ecdcc8f5ab1c89ad9
+        with:
+          branch: ${{ github.ref_name }}
+          client_id: ${{ secrets.CLIENT_ID }}
+          tenant_id: ${{ secrets.TENANT_ID }}
+          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          resource_group: ${{ inputs.resource_group }}
+          app_name: ${{ inputs.app_name }}
+          registry_image: ${{ inputs.registry_image }}
