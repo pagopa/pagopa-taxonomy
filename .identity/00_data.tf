@@ -42,12 +42,8 @@ data "azurerm_key_vault_secret" "key_vault_integration_test_webhook_slack" {
   key_vault_id = data.azurerm_key_vault.domain_key_vault.id
 }
 
-data "azurerm_resource_group" "app_rg" {
-  name  = "pagopa-${var.env_short}-${local.location_short}-${local.domain}-txnm-rg"
-}
-
 data "azurerm_user_assigned_identity" "workload_identity_clientid" {
-  name                = "receipts-workload-identity"
+  name                = "shared-workload-identity"
   resource_group_name = "pagopa-${var.env_short}-${local.location_short}-${var.env}-aks-rg"
 }
 

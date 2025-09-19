@@ -13,7 +13,7 @@ on:
         type: string
 
 env:
-  APP_NAME: pagopa-node-cfg-sync
+  APP_NAME: pagopa-${{env.ENV_SHORT}}-weu-shared-txnm-fn
 
 
 permissions:
@@ -26,7 +26,7 @@ jobs:
     name: Deploy on AKS
     environment: ${{ inputs.environment }}
     steps:
-      - name: Deploy
+      - name: Deploy in ${{ inputs.environment }}
         uses: pagopa/github-actions-template/aks-deploy@main
         with:
           branch: ${{ inputs.branch }}
@@ -58,7 +58,7 @@ jobs:
         # from https://github.com/hashicorp/setup-terraform/commits/main
         uses: hashicorp/setup-terraform@8feba2b913ea459066180f9cb177f58a881cf146
         with:
-          terraform_version: "1.9.8"
+          terraform_version: ${{ vars.TERRAFORM_VERSION }}
 
       - name: Login
         id: login

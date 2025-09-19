@@ -32,13 +32,13 @@ locals {
     "CLUSTER_RESOURCE_GROUP" : local.aks_cluster.resource_group_name,
     "DOMAIN" : local.domain,
     "NAMESPACE" : local.domain,
+    "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
   }
   repo_secrets = {
     "SONAR_TOKEN" : data.azurerm_key_vault_secret.key_vault_sonar.value,
     "BOT_TOKEN_GITHUB" : data.azurerm_key_vault_secret.key_vault_bot_cd_token.value,
     "SLACK_WEBHOOK_URL_DEPLOY": data.azurerm_key_vault_secret.key_vault_deploy_webhook_slack.value,
-    "SLACK_WEBHOOK_URL_INTEGRATION_TEST": data.azurerm_key_vault_secret.key_vault_integration_test_webhook_slack.value,
-    "WORKLOAD_IDENTITY_ID": data.azurerm_user_assigned_identity.workload_identity_clientid.client_id
+    "SLACK_WEBHOOK_URL_INTEGRATION_TEST": data.azurerm_key_vault_secret.key_vault_integration_test_webhook_slack.value
   }
 }
 
