@@ -18,7 +18,7 @@
         <functionAppName>pagopa-d-weu-taxonomy-fn</functionAppName>
         <resteasy.version>6.2.4.Final</resteasy.version>
         <org.modelmapper>3.1.1</org.modelmapper>
-        <jackson>2.15.2</jackson>
+        <jackson>2.18.8</jackson>
     </properties>
     <dependencyManagement>
         <dependencies>
