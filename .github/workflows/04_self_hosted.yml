@@ -80,16 +80,6 @@ jobs:
           subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
           app_name: ${{ inputs.app_name }}
           registry_image: ${{ inputs.registry_image }}
-      - name: Set Java runtime options
-        env:
-          APP_NAME: ${{ inputs.app_name }}
-          RESOURCE_GROUP: ${{ inputs.resource_group }}
-        run: |
-          az functionapp config appsettings set \
-            --resource-group "$RESOURCE_GROUP" \
-            --name "$APP_NAME" \
-            --settings "JAVA_OPTS=-XX:-UseBASE64Intrinsics" \
-            --output none
 
 
   # Stopping the Azure Function's staging slot, if deploying in PROD
