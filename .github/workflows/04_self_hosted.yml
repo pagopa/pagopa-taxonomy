@@ -71,6 +71,22 @@ jobs:
     environment:
       name: ${{ inputs.environment }}
     steps:
+      - name: Log in to Azure to configure Function app settings
+        uses: azure/login@89d153571fe9a34ed70fcf9f1d95ab8debea7a73
+        with:
+          client-id: ${{ secrets.CLIENT_ID }}
+          tenant-id: ${{ secrets.TENANT_ID }}
+          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+      - name: Set Java runtime options
+        env:
+          APP_NAME: ${{ inputs.app_name }}
+          RESOURCE_GROUP: ${{ inputs.resource_group }}
+        run: |
+          az functionapp config appsettings set \
+            --resource-group "$RESOURCE_GROUP" \
+            --name "$APP_NAME" \
+            --settings "JAVA_OPTS=-XX:-UseBASE64Intrinsics" \
+            --output none
       - name: Deploy Azure Function
         uses: pagopa/github-actions-template/azure-functions-deploy@a1b72480e9ac555364be0b7ecdcc8f5ab1c89ad9
         with:
