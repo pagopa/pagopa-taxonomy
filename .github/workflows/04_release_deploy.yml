@@ -33,7 +33,7 @@ on:
           # patch (patch)
           # new_release (minor)
           # breaking_change (major)
-          
+
           # if DEV  -> skip, patch, new-release (minor) or breaking-change (major)
           # if UAT  -> promote of TAG or patch (patch + branch_name)
           # if PROD -> promote of TAG or patch (patch + branch_name)
@@ -126,7 +126,7 @@ jobs:
       matrix:
         environment: [ dev, uat, prod ]
     secrets: inherit
-    uses: ./.github/workflows/04_self_hosted.yml
+    uses: ./.github/workflows/04h_deploy_with_github_runner.yml
     with:
       environment: ${{ matrix.environment }}
       target: ${{ needs.setup.outputs.environment }}
@@ -151,4 +151,4 @@ jobs:
           footer: 'Linked to <{workflow_url}| workflow file>'
           icon_success: ':white_check_mark:'
         env:
-          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL }}
+          SLACK_WEBHOOK_URL: ${{ secrets.SLACK_WEBHOOK_URL_DEPLOY }}
