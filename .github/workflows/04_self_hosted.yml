@@ -71,12 +71,15 @@ jobs:
     environment:
       name: ${{ inputs.environment }}
     steps:
-      - name: Log in to Azure to configure Function app settings
-        uses: azure/login@89d153571fe9a34ed70fcf9f1d95ab8debea7a73
+      - name: Deploy Azure Function
+        uses: pagopa/github-actions-template/azure-functions-deploy@a1b72480e9ac555364be0b7ecdcc8f5ab1c89ad9
         with:
-          client-id: ${{ secrets.CLIENT_ID }}
-          tenant-id: ${{ secrets.TENANT_ID }}
-          subscription-id: ${{ secrets.SUBSCRIPTION_ID }}
+          branch: ${{ github.ref_name }}
+          client_id: ${{ secrets.CLIENT_ID }}
+          tenant_id: ${{ secrets.TENANT_ID }}
+          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
+          app_name: ${{ inputs.app_name }}
+          registry_image: ${{ inputs.registry_image }}
       - name: Set Java runtime options
         env:
           APP_NAME: ${{ inputs.app_name }}
@@ -87,15 +90,6 @@ jobs:
             --name "$APP_NAME" \
             --settings "JAVA_OPTS=-XX:-UseBASE64Intrinsics" \
             --output none
-      - name: Deploy Azure Function
-        uses: pagopa/github-actions-template/azure-functions-deploy@a1b72480e9ac555364be0b7ecdcc8f5ab1c89ad9
-        with:
-          branch: ${{ github.ref_name }}
-          client_id: ${{ secrets.CLIENT_ID }}
-          tenant_id: ${{ secrets.TENANT_ID }}
-          subscription_id: ${{ secrets.SUBSCRIPTION_ID }}
-          app_name: ${{ inputs.app_name }}
-          registry_image: ${{ inputs.registry_image }}
 
 
   # Stopping the Azure Function's staging slot, if deploying in PROD
