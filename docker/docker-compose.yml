@@ -3,7 +3,7 @@ name: pagopa-taxonomy-function
 services:
   storage:
     container_name: 'pagopa-taxonomy-function-storage'
-    image: mcr.microsoft.com/azure-storage/azurite
+    image: mcr.microsoft.com/azure-storage/azurite@sha256:c26024d62bf4a5b88a40968afd217234c00e1fc9a4790dc6105d1ca7979f6eec
     ports:
       - "10000:10000"
       - "10001:10001"
